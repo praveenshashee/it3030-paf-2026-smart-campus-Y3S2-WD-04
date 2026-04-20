@@ -43,6 +43,22 @@ public class BookingService {
             return null;
         }
 
+        // Basic time validation before saving.
+        if (!requestDto.getEndTime().isAfter(requestDto.getStartTime())) {
+            return null;
+        }
+
+        // Prevent overlapping bookings for the same resource on the same date.
+        boolean hasConflict = hasBookingConflict(
+                resource,
+                requestDto.getBookingDate(),
+                requestDto.getStartTime(),
+                requestDto.getEndTime());
+
+        if (hasConflict) {
+            return null;
+        }
+
         Booking booking = new Booking();
         booking.setResource(resource);
         booking.setBookingDate(requestDto.getBookingDate());
@@ -55,6 +71,62 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         return mapToResponseDto(savedBooking);
+    }
+
+    public BookingResponseDto approveBooking(Long id) {
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            return null;
+        }
+
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setAdminReason(null);
+
+        Booking updatedBooking = bookingRepository.save(booking);
+        return mapToResponseDto(updatedBooking);
+    }
+
+    public BookingResponseDto rejectBooking(Long id, String reason) {
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            return null;
+        }
+
+        booking.setStatus(BookingStatus.REJECTED);
+        booking.setAdminReason(reason);
+
+        Booking updatedBooking = bookingRepository.save(booking);
+        return mapToResponseDto(updatedBooking);
+    }
+
+    public BookingResponseDto cancelBooking(Long id, String reason) {
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            return null;
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setAdminReason(reason);
+
+        Booking updatedBooking = bookingRepository.save(booking);
+        return mapToResponseDto(updatedBooking);
+    }
+
+    private boolean hasBookingConflict(
+            Resource resource,
+            java.time.LocalDate bookingDate,
+            java.time.LocalTime newStartTime,
+            java.time.LocalTime newEndTime) {
+        List<Booking> existingBookings = bookingRepository.findByResourceAndBookingDate(resource, bookingDate);
+
+        return existingBookings.stream()
+                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED &&
+                        booking.getStatus() != BookingStatus.CANCELLED)
+                .anyMatch(booking -> newStartTime.isBefore(booking.getEndTime()) &&
+                        newEndTime.isAfter(booking.getStartTime()));
     }
 
     private BookingResponseDto mapToResponseDto(Booking booking) {
