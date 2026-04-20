@@ -641,3 +641,17 @@ body {
     transform: translateY(0);
   }
 }
+
+.btn-success {
+  border: none;
+}
+
+.booking-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.booking-action-group .btn {
+  width: 100%;
+}

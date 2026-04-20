@@ -11,3 +11,15 @@ export const getBookingById = (id) => {
 export const createBooking = (bookingData) => {
     return axiosInstance.post('/bookings', bookingData);
 };
+
+export const approveBooking = (id) => {
+    return axiosInstance.put(`/bookings/${id}/approve`);
+};
+
+export const rejectBooking = (id, reason) => {
+    return axiosInstance.put(`/bookings/${id}/reject`, { reason });
+};
+
+export const cancelBooking = (id, reason) => {
+    return axiosInstance.put(`/bookings/${id}/cancel`, { reason });
+};

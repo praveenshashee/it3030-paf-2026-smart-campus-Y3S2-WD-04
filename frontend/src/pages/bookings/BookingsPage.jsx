@@ -2,12 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
-import { getAllBookings } from '../../services/bookingService';
+import {
+    approveBooking,
+    cancelBooking,
+    getAllBookings,
+    rejectBooking,
+} from '../../services/bookingService';
 
 function BookingsPage() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         fetchBookings();
@@ -26,6 +32,57 @@ function BookingsPage() {
         }
     };
 
+    const handleApprove = async (id) => {
+        try {
+            await approveBooking(id);
+            setSuccessMessage('Booking approved successfully.');
+            setError('');
+            fetchBookings();
+        } catch (err) {
+            setSuccessMessage('');
+            setError('Failed to approve booking.');
+            console.error(err);
+        }
+    };
+
+    const handleReject = async (id) => {
+        const reason = window.prompt('Enter a reason for rejecting this booking:');
+
+        if (reason === null) {
+            return;
+        }
+
+        try {
+            await rejectBooking(id, reason);
+            setSuccessMessage('Booking rejected successfully.');
+            setError('');
+            fetchBookings();
+        } catch (err) {
+            setSuccessMessage('');
+            setError('Failed to reject booking.');
+            console.error(err);
+        }
+    };
+
+    const handleCancel = async (id) => {
+        const reason = window.prompt('Enter a reason for cancelling this booking:');
+
+        if (reason === null) {
+            return;
+        }
+
+        try {
+            await cancelBooking(id, reason);
+            setSuccessMessage('Booking cancelled successfully.');
+            setError('');
+            fetchBookings();
+        } catch (err) {
+            setSuccessMessage('');
+            setError('Failed to cancel booking.');
+            console.error(err);
+        }
+    };
+
     const getStatusClass = (status) => {
         if (status === 'APPROVED') return 'status-badge status-active';
         if (status === 'REJECTED' || status === 'CANCELLED') {
@@ -33,6 +90,10 @@ function BookingsPage() {
         }
         return 'status-badge';
     };
+
+    const canApprove = (status) => status === 'PENDING';
+    const canReject = (status) => status === 'PENDING';
+    const canCancel = (status) => status === 'PENDING' || status === 'APPROVED';
 
     return (
         <PageTransition>
@@ -51,6 +112,10 @@ function BookingsPage() {
                         </Link>
                     </div>
 
+                    {successMessage && (
+                        <div className="alert alert-success">{successMessage}</div>
+                    )}
+
                     {loading && <p>Loading bookings...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
@@ -68,6 +133,8 @@ function BookingsPage() {
                                             <th>Purpose</th>
                                             <th>Attendees</th>
                                             <th>Status</th>
+                                            <th>Reason</th>
+                                            <th style={{ width: '220px' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -86,11 +153,42 @@ function BookingsPage() {
                                                             {booking.status}
                                                         </span>
                                                     </td>
+                                                    <td>{booking.adminReason || '-'}</td>
+                                                    <td>
+                                                        <div className="action-group booking-action-group">
+                                                            {canApprove(booking.status) && (
+                                                                <button
+                                                                    className="btn btn-success btn-sm"
+                                                                    onClick={() => handleApprove(booking.id)}
+                                                                >
+                                                                    Approve
+                                                                </button>
+                                                            )}
+
+                                                            {canReject(booking.status) && (
+                                                                <button
+                                                                    className="btn btn-warning btn-sm"
+                                                                    onClick={() => handleReject(booking.id)}
+                                                                >
+                                                                    Reject
+                                                                </button>
+                                                            )}
+
+                                                            {canCancel(booking.status) && (
+                                                                <button
+                                                                    className="btn btn-danger btn-sm"
+                                                                    onClick={() => handleCancel(booking.id)}
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="8" className="empty-state">
+                                                <td colSpan="10" className="empty-state">
                                                     No bookings found.
                                                 </td>
                                             </tr>
