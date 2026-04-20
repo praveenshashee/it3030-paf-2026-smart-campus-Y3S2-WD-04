@@ -4,3 +4,8 @@ import axiosInstance from '../api/axiosConfig';
 export const getAllResources = () => {
     return axiosInstance.get('/resources');
 };
+
+// Sends a new resource to the backend API.
+export const createResource = (resourceData) => {
+    return axiosInstance.post('/resources', resourceData);
+};
