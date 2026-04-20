@@ -1,3 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #1f3b63;
+  --primary-light: #315b8d;
+  --primary-dark: #152943;
+
+  --accent: #d97706;
+  --accent-hover: #b45309;
+
+  --bg:
+    radial-gradient(circle at top left, rgba(254, 226, 226, 0.72), transparent 32%),
+    radial-gradient(circle at top right, rgba(219, 234, 254, 0.72), transparent 26%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-solid: #ffffff;
+
+  --text: #172033;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+
+  --success: #2f855a;
+  --error: #dc2626;
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 18px 42px rgba(15, 23, 42, 0.12);
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --transition: 0.22s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #f8f9fa;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.page-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.03em;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+}
+
+.form-card,
+.table-card {
+  padding: 24px;
+}
+
+.section-title {
+  margin: 0 0 18px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  box-shadow: none !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-light);
+}
+
+.btn {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 10px 16px;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #fb7185);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-hover), #e11d48);
+}
+
+.btn-warning {
+  border: none;
+}
+
+.btn-danger {
+  border: none;
+}
+
+.btn-secondary {
+  border: none;
+}
+
+.action-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.custom-table {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.custom-table thead th {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.custom-table td,
+.custom-table th {
+  padding: 14px 12px;
+  border-color: var(--border);
+}
+
+.custom-table tbody tr {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.status-active {
+  background: rgba(47, 133, 90, 0.12);
+  color: var(--success);
+}
+
+.status-out {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--error);
+}
+
+.alert {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.link-btn {
+  text-decoration: none;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px 0;
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 24px 16px 36px;
+  }
+
+  .form-card,
+  .table-card {
+    padding: 18px;
+  }
+
+  .top-actions {
+    justify-content: stretch;
+  }
+
+  .top-actions .btn {
+    width: 100%;
+  }
+
+  .action-group {
+    flex-direction: column;
+  }
+
+  .action-group .btn {
+    width: 100%;
+  }
 }
