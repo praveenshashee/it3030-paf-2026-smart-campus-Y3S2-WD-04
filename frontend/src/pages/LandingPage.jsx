@@ -147,6 +147,16 @@ function LandingPage() {
                                                     Dashboard
                                                 </Link>
 
+                                                {user.role === 'ADMIN' && (
+                                                    <Link
+                                                        to="/admin/users"
+                                                        className="btn btn-secondary btn-sm link-btn w-100"
+                                                        onClick={() => setProfileMenuOpen(false)}
+                                                    >
+                                                        Manage Users
+                                                    </Link>
+                                                )}
+
                                                 <button
                                                     className="btn btn-secondary btn-sm w-100"
                                                     onClick={handleLogoutClick}

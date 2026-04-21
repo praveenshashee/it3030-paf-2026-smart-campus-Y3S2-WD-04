@@ -12,6 +12,7 @@ import NotificationsPage from './pages/notifications/NotificationsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import ProfilePage from './pages/ProfilePage';
+import AdminUsersPage from './pages/AdminUsersPage';
 
 function App() {
   return (
@@ -65,6 +66,15 @@ function App() {
           <ProtectedRoute>
             <ProfilePage />
           </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <RoleProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminUsersPage />
+          </RoleProtectedRoute>
         }
       />
     </Routes>
