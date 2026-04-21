@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { formatDate, formatTime } from '../../utils/formatters';
 import {
     approveBooking,
     cancelBooking,
@@ -214,9 +215,9 @@ function BookingsPage() {
                                                 <tr key={booking.id}>
                                                     <td>{booking.id}</td>
                                                     <td>{booking.resourceName}</td>
-                                                    <td>{booking.bookingDate}</td>
-                                                    <td>{booking.startTime}</td>
-                                                    <td>{booking.endTime}</td>
+                                                    <td>{formatDate(booking.bookingDate)}</td>
+                                                    <td>{formatTime(booking.startTime)}</td>
+                                                    <td>{formatTime(booking.endTime)}</td>
                                                     <td>{booking.purpose}</td>
                                                     <td>{booking.expectedAttendees}</td>
                                                     <td>

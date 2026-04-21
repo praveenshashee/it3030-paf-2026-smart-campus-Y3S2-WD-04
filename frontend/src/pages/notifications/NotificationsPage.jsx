@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { formatDateTime } from '../../utils/formatters';
 import {
     getAllNotifications,
     markNotificationAsRead,
@@ -73,8 +74,8 @@ function NotificationsPage() {
                                     <div
                                         key={notification.id}
                                         className={`glass-card notification-card ${notification.isRead
-                                                ? 'notification-read'
-                                                : 'notification-unread'
+                                            ? 'notification-read'
+                                            : 'notification-unread'
                                             }`}
                                     >
                                         <div className="notification-card-top">
@@ -93,7 +94,7 @@ function NotificationsPage() {
 
                                         <div className="notification-footer">
                                             <span className="notification-time">
-                                                {notification.createdAt}
+                                                {formatDateTime(notification.createdAt)}
                                             </span>
 
                                             {!notification.isRead && (
