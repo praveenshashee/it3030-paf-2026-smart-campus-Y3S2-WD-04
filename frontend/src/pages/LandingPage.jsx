@@ -15,12 +15,15 @@ function LandingPage() {
                             <Link to="/resources" className="landing-nav-link">
                                 Resources
                             </Link>
-                            <a href="#modules" className="landing-nav-link">
-                                Modules
-                            </a>
-                            <a href="#overview" className="landing-nav-link">
-                                Overview
-                            </a>
+                            <Link to="/bookings" className="landing-nav-link">
+                                Bookings
+                            </Link>
+                            <Link to="/tickets" className="landing-nav-link">
+                                Tickets
+                            </Link>
+                            <Link to="/notifications" className="landing-nav-link">
+                                Notifications
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -37,8 +40,8 @@ function LandingPage() {
 
                             <p className="landing-subtitle">
                                 Smart Campus Operations Hub helps universities manage facilities,
-                                assets, bookings, and operational workflows through a structured
-                                and user-friendly web platform.
+                                assets, bookings, maintenance workflows, and notifications
+                                through a structured and user-friendly web platform.
                             </p>
 
                             <div className="landing-action-row">
@@ -60,7 +63,7 @@ function LandingPage() {
 
                                 <div className="landing-stat-card">
                                     <strong>Operations</strong>
-                                    <span>Prepare for tickets and notifications</span>
+                                    <span>Track tickets and notifications</span>
                                 </div>
                             </div>
                         </div>
@@ -69,9 +72,9 @@ function LandingPage() {
                             <div className="landing-visual-chip">Campus Operations</div>
                             <h3>Built for smoother university workflows</h3>
                             <p>
-                                From facilities and assets to future bookings, incident handling, and
-                                notifications — this system is designed to keep campus operations
-                                organized and easier to manage.
+                                From facilities and assets to booking approvals, maintenance
+                                tickets, and notifications — this system is designed to keep
+                                campus operations organized and easier to manage.
                             </p>
 
                             <div className="landing-mini-grid">
@@ -91,8 +94,8 @@ function LandingPage() {
                                 </div>
 
                                 <div className="landing-mini-card">
-                                    <strong>Roles</strong>
-                                    <span>User, Admin, Technician</span>
+                                    <strong>Alerts</strong>
+                                    <span>Activity and updates</span>
                                 </div>
                             </div>
 
@@ -107,50 +110,94 @@ function LandingPage() {
                     </section>
 
                     <section className="feature-strip" id="modules">
-                        <div className="glass-card feature-card">
-                            <h3>Facilities & Assets</h3>
-                            <p>
-                                Manage lecture halls, labs, meeting rooms, and equipment with
-                                clear metadata and availability status.
-                            </p>
+                        <div className="glass-card feature-card module-link-card">
+                            <div>
+                                <h3>Facilities & Assets</h3>
+                                <p>
+                                    Manage lecture halls, labs, meeting rooms, and equipment with
+                                    clear metadata and availability status.
+                                </p>
+                            </div>
+
+                            <Link to="/resources" className="btn btn-sm btn-primary link-btn">
+                                Open
+                            </Link>
                         </div>
 
-                        <div className="glass-card feature-card">
-                            <h3>Booking Workflows</h3>
-                            <p>
-                                Support booking requests, approval flows, and conflict-aware
-                                scheduling for campus resources.
-                            </p>
+                        <div className="glass-card feature-card module-link-card">
+                            <div>
+                                <h3>Booking Workflows</h3>
+                                <p>
+                                    Support booking requests, approval flows, and conflict-aware
+                                    scheduling for campus resources.
+                                </p>
+                            </div>
+
+                            <Link to="/bookings" className="btn btn-sm btn-primary link-btn">
+                                Open
+                            </Link>
                         </div>
 
-                        <div className="glass-card feature-card">
-                            <h3>Maintenance & Tickets</h3>
-                            <p>
-                                Prepare the platform for issue reporting, technician assignment,
-                                and service updates in future phases.
-                            </p>
+                        <div className="glass-card feature-card module-link-card">
+                            <div>
+                                <h3>Maintenance & Tickets</h3>
+                                <p>
+                                    Handle issue reporting, technician progress, resolution notes,
+                                    and operational follow-up.
+                                </p>
+                            </div>
+
+                            <Link to="/tickets" className="btn btn-sm btn-primary link-btn">
+                                Open
+                            </Link>
                         </div>
                     </section>
 
                     <section className="module-preview-section">
                         <div className="glass-card module-preview-card">
                             <div>
-                                <h2 className="section-title mb-2">Start with the Resources Module</h2>
+                                <h2 className="section-title mb-2">System activity is now connected</h2>
                                 <p className="module-preview-text">
-                                    The Resources module is already working with full backend and
-                                    frontend integration, including create, update, delete, and
-                                    database persistence.
+                                    Resources, bookings, tickets, and notifications are already
+                                    integrated into a single workflow-driven system foundation.
                                 </p>
                             </div>
 
                             <div className="module-preview-actions">
-                                <Link to="/resources" className="btn btn-primary link-btn">
-                                    Open Resources
+                                <Link to="/notifications" className="btn btn-primary link-btn">
+                                    View Notifications
                                 </Link>
                             </div>
                         </div>
                     </section>
                 </div>
+
+                <footer className="landing-footer">
+                    <div className="page-shell landing-footer-content">
+                        <div className="landing-footer-brand">
+                            <h3>Smart Campus Hub</h3>
+                            <p>
+                                A modern university operations platform for resources, bookings,
+                                tickets, and notifications.
+                            </p>
+                        </div>
+
+                        <div className="landing-footer-links">
+                            <Link to="/resources" className="landing-footer-link">
+                                Resources
+                            </Link>
+                            <Link to="/bookings" className="landing-footer-link">
+                                Bookings
+                            </Link>
+                            <Link to="/tickets" className="landing-footer-link">
+                                Tickets
+                            </Link>
+                            <Link to="/notifications" className="landing-footer-link">
+                                Notifications
+                            </Link>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </PageTransition>
     );
