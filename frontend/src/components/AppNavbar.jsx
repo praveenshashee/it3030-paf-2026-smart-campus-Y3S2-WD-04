@@ -82,10 +82,10 @@ function AppNavbar() {
                     <div className="navbar-auth-section">
                         {user ? (
                             <>
-                                <div className="navbar-user-box">
+                                <Link to="/profile" className="navbar-user-box navbar-user-link">
                                     <span className="navbar-user-name">{user.fullName}</span>
                                     <span className="navbar-user-role">{user.role}</span>
-                                </div>
+                                </Link>
 
                                 <button className="btn btn-secondary btn-sm" onClick={logout}>
                                     Logout

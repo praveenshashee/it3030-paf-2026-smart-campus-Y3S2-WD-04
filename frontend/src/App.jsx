@@ -11,6 +11,7 @@ import CreateTicketPage from './pages/tickets/CreateTicketPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -57,6 +58,15 @@ function App() {
       />
 
       <Route path="/notifications" element={<NotificationsPage />} />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
