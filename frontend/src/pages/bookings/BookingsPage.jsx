@@ -9,8 +9,11 @@ import {
     rejectBooking,
 } from '../../services/bookingService';
 import { formatDate, formatTime } from '../../utils/formatters';
+import { useAuth } from '../../context/AuthContext';
 
 function BookingsPage() {
+    const { user } = useAuth();
+
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -25,6 +28,8 @@ function BookingsPage() {
         action: '',
         reason: '',
     });
+
+    const canManageBookings = user?.role === 'ADMIN';
 
     useEffect(() => {
         fetchBookings();
@@ -228,7 +233,9 @@ function BookingsPage() {
                                             <th>Attendees</th>
                                             <th>Status</th>
                                             <th>Reason</th>
-                                            <th style={{ width: '220px' }}>Actions</th>
+                                            {canManageBookings && (
+                                                <th style={{ width: '220px' }}>Actions</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -248,45 +255,47 @@ function BookingsPage() {
                                                         </span>
                                                     </td>
                                                     <td>{booking.adminReason || '-'}</td>
-                                                    <td>
-                                                        <div className="action-group booking-action-group">
-                                                            {canApprove(booking.status) && (
-                                                                <button
-                                                                    className="btn btn-success btn-sm"
-                                                                    onClick={() => handleApprove(booking.id)}
-                                                                >
-                                                                    Approve
-                                                                </button>
-                                                            )}
+                                                    {canManageBookings && (
+                                                        <td>
+                                                            <div className="action-group booking-action-group">
+                                                                {canApprove(booking.status) && (
+                                                                    <button
+                                                                        className="btn btn-success btn-sm"
+                                                                        onClick={() => handleApprove(booking.id)}
+                                                                    >
+                                                                        Approve
+                                                                    </button>
+                                                                )}
 
-                                                            {canReject(booking.status) && (
-                                                                <button
-                                                                    className="btn btn-warning btn-sm"
-                                                                    onClick={() =>
-                                                                        openBookingActionModal(booking, 'reject')
-                                                                    }
-                                                                >
-                                                                    Reject
-                                                                </button>
-                                                            )}
+                                                                {canReject(booking.status) && (
+                                                                    <button
+                                                                        className="btn btn-warning btn-sm"
+                                                                        onClick={() =>
+                                                                            openBookingActionModal(booking, 'reject')
+                                                                        }
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                )}
 
-                                                            {canCancel(booking.status) && (
-                                                                <button
-                                                                    className="btn btn-danger btn-sm"
-                                                                    onClick={() =>
-                                                                        openBookingActionModal(booking, 'cancel')
-                                                                    }
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </td>
+                                                                {canCancel(booking.status) && (
+                                                                    <button
+                                                                        className="btn btn-danger btn-sm"
+                                                                        onClick={() =>
+                                                                            openBookingActionModal(booking, 'cancel')
+                                                                        }
+                                                                    >
+                                                                        Cancel
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="10">
+                                                <td colSpan={canManageBookings ? 10 : 9}>
                                                     <div className="empty-state-card">
                                                         <h3 className="empty-state-title">No bookings found</h3>
                                                         <p className="empty-state-text">
