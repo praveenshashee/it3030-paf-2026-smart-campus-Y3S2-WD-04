@@ -5,6 +5,7 @@ import com.smartcampus.hub.dto.TicketResponseDto;
 import com.smartcampus.hub.dto.TicketStatusUpdateRequestDto;
 import com.smartcampus.hub.entity.Resource;
 import com.smartcampus.hub.entity.Ticket;
+import com.smartcampus.hub.enums.NotificationType;
 import com.smartcampus.hub.enums.TicketStatus;
 import com.smartcampus.hub.repository.ResourceRepository;
 import com.smartcampus.hub.repository.TicketRepository;
@@ -18,10 +19,15 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final ResourceRepository resourceRepository;
+    private final NotificationService notificationService;
 
-    public TicketService(TicketRepository ticketRepository, ResourceRepository resourceRepository) {
+    public TicketService(
+            TicketRepository ticketRepository,
+            ResourceRepository resourceRepository,
+            NotificationService notificationService) {
         this.ticketRepository = ticketRepository;
         this.resourceRepository = resourceRepository;
+        this.notificationService = notificationService;
     }
 
     public List<TicketResponseDto> getAllTickets() {
@@ -55,6 +61,12 @@ public class TicketService {
         ticket.setCreatedAt(LocalDateTime.now());
 
         Ticket savedTicket = ticketRepository.save(ticket);
+
+        notificationService.createNotification(
+                NotificationType.TICKET,
+                "New ticket created",
+                "A new ticket was created for category: " + savedTicket.getCategory());
+
         return mapToResponseDto(savedTicket);
     }
 
@@ -71,6 +83,12 @@ public class TicketService {
         ticket.setRejectionReason(requestDto.getRejectionReason());
 
         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        notificationService.createNotification(
+                NotificationType.TICKET,
+                "Ticket status updated",
+                "Ticket #" + ticket.getId() + " status changed to " + ticket.getStatus());
+
         return mapToResponseDto(updatedTicket);
     }
 
