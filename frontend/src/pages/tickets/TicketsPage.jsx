@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getAllTickets, updateTicketStatus } from '../../services/ticketService';
+import { useAuth } from '../../context/AuthContext';
 
 function TicketsPage() {
+    const { user } = useAuth();
+
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -22,6 +25,8 @@ function TicketsPage() {
         resolutionNotes: '',
         rejectionReason: '',
     });
+
+    const canManageTickets = user?.role === 'ADMIN' || user?.role === 'TECHNICIAN';
 
     useEffect(() => {
         fetchTickets();
@@ -254,7 +259,9 @@ function TicketsPage() {
                                             <th>Status</th>
                                             <th>Technician</th>
                                             <th>Resolution / Rejection</th>
-                                            <th style={{ width: '220px' }}>Actions</th>
+                                            {canManageTickets && (
+                                                <th style={{ width: '220px' }}>Actions</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -273,50 +280,52 @@ function TicketsPage() {
                                                     </td>
                                                     <td>{ticket.assignedTechnicianName || '-'}</td>
                                                     <td>{ticket.resolutionNotes || ticket.rejectionReason || '-'}</td>
-                                                    <td>
-                                                        <div className="action-group ticket-action-group">
-                                                            {canStart(ticket.status) && (
-                                                                <button
-                                                                    className="btn btn-info btn-sm"
-                                                                    onClick={() => openTicketActionModal(ticket, 'start')}
-                                                                >
-                                                                    Start
-                                                                </button>
-                                                            )}
+                                                    {canManageTickets && (
+                                                        <td>
+                                                            <div className="action-group ticket-action-group">
+                                                                {canStart(ticket.status) && (
+                                                                    <button
+                                                                        className="btn btn-info btn-sm"
+                                                                        onClick={() => openTicketActionModal(ticket, 'start')}
+                                                                    >
+                                                                        Start
+                                                                    </button>
+                                                                )}
 
-                                                            {canResolve(ticket.status) && (
-                                                                <button
-                                                                    className="btn btn-success btn-sm"
-                                                                    onClick={() => openTicketActionModal(ticket, 'resolve')}
-                                                                >
-                                                                    Resolve
-                                                                </button>
-                                                            )}
+                                                                {canResolve(ticket.status) && (
+                                                                    <button
+                                                                        className="btn btn-success btn-sm"
+                                                                        onClick={() => openTicketActionModal(ticket, 'resolve')}
+                                                                    >
+                                                                        Resolve
+                                                                    </button>
+                                                                )}
 
-                                                            {canClose(ticket.status) && (
-                                                                <button
-                                                                    className="btn btn-secondary btn-sm"
-                                                                    onClick={() => openTicketActionModal(ticket, 'close')}
-                                                                >
-                                                                    Close
-                                                                </button>
-                                                            )}
+                                                                {canClose(ticket.status) && (
+                                                                    <button
+                                                                        className="btn btn-secondary btn-sm"
+                                                                        onClick={() => openTicketActionModal(ticket, 'close')}
+                                                                    >
+                                                                        Close
+                                                                    </button>
+                                                                )}
 
-                                                            {canReject(ticket.status) && (
-                                                                <button
-                                                                    className="btn btn-danger btn-sm"
-                                                                    onClick={() => openTicketActionModal(ticket, 'reject')}
-                                                                >
-                                                                    Reject
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </td>
+                                                                {canReject(ticket.status) && (
+                                                                    <button
+                                                                        className="btn btn-danger btn-sm"
+                                                                        onClick={() => openTicketActionModal(ticket, 'reject')}
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="9">
+                                                <td colSpan={canManageTickets ? 9 : 8}>
                                                     <div className="empty-state-card">
                                                         <h3 className="empty-state-title">No tickets found</h3>
                                                         <p className="empty-state-text">

@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { deleteResource, getAllResources } from '../../services/resourceService';
+import { useAuth } from '../../context/AuthContext';
 
 function ResourcesPage() {
+    const { user } = useAuth();
+
     const [resources, setResources] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -15,6 +18,8 @@ function ResourcesPage() {
     const [selectedStatus, setSelectedStatus] = useState('');
 
     const [resourceToDelete, setResourceToDelete] = useState(null);
+
+    const isAdmin = user?.role === 'ADMIN';
 
     useEffect(() => {
         fetchResources();
@@ -118,7 +123,7 @@ function ResourcesPage() {
                     </div>
 
                     <div className="glass-card filter-toolbar">
-                        <div className="filter-toolbar-grid">
+                        <div className={`filter-toolbar-grid ${!isAdmin ? 'filter-toolbar-grid-no-action' : ''}`}>
                             <div className="filter-field filter-field-search">
                                 <label className="form-label compact-label">Search</label>
                                 <input
@@ -158,11 +163,13 @@ function ResourcesPage() {
                                 </select>
                             </div>
 
-                            <div className="filter-action">
-                                <Link to="/resources/create" className="btn btn-primary link-btn w-100">
-                                    Create Resource
-                                </Link>
-                            </div>
+                            {isAdmin && (
+                                <div className="filter-action">
+                                    <Link to="/resources/create" className="btn btn-primary link-btn w-100">
+                                        Create Resource
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -185,7 +192,9 @@ function ResourcesPage() {
                                             <th>Capacity</th>
                                             <th>Location</th>
                                             <th>Status</th>
-                                            <th style={{ width: '180px' }}>Actions</th>
+                                            {isAdmin && (
+                                                <th style={{ width: '180px' }}>Actions</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -202,38 +211,42 @@ function ResourcesPage() {
                                                             {resource.status}
                                                         </span>
                                                     </td>
-                                                    <td>
-                                                        <div className="action-group">
-                                                            <Link
-                                                                to={`/resources/edit/${resource.id}`}
-                                                                className="btn btn-warning btn-sm link-btn"
-                                                            >
-                                                                Edit
-                                                            </Link>
+                                                    {isAdmin && (
+                                                        <td>
+                                                            <div className="action-group">
+                                                                <Link
+                                                                    to={`/resources/edit/${resource.id}`}
+                                                                    className="btn btn-warning btn-sm link-btn"
+                                                                >
+                                                                    Edit
+                                                                </Link>
 
-                                                            <button
-                                                                className="btn btn-danger btn-sm"
-                                                                onClick={() => openDeleteModal(resource)}
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                                <button
+                                                                    className="btn btn-danger btn-sm"
+                                                                    onClick={() => openDeleteModal(resource)}
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="7">
+                                                <td colSpan={isAdmin ? 7 : 6}>
                                                     <div className="empty-state-card">
                                                         <h3 className="empty-state-title">No resources found</h3>
                                                         <p className="empty-state-text">
                                                             No resources match the current search or filter settings.
                                                         </p>
-                                                        <div className="empty-state-actions">
-                                                            <Link to="/resources/create" className="btn btn-primary link-btn">
-                                                                Create Resource
-                                                            </Link>
-                                                        </div>
+                                                        {isAdmin && (
+                                                            <div className="empty-state-actions">
+                                                                <Link to="/resources/create" className="btn btn-primary link-btn">
+                                                                    Create Resource
+                                                                </Link>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
