@@ -5,6 +5,7 @@ import com.smartcampus.hub.dto.BookingResponseDto;
 import com.smartcampus.hub.entity.Booking;
 import com.smartcampus.hub.entity.Resource;
 import com.smartcampus.hub.enums.BookingStatus;
+import com.smartcampus.hub.enums.NotificationType;
 import com.smartcampus.hub.repository.BookingRepository;
 import com.smartcampus.hub.repository.ResourceRepository;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,15 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final ResourceRepository resourceRepository;
+    private final NotificationService notificationService;
 
-    public BookingService(BookingRepository bookingRepository, ResourceRepository resourceRepository) {
+    public BookingService(
+            BookingRepository bookingRepository,
+            ResourceRepository resourceRepository,
+            NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
         this.resourceRepository = resourceRepository;
+        this.notificationService = notificationService;
     }
 
     public List<BookingResponseDto> getAllBookings() {
@@ -43,7 +49,7 @@ public class BookingService {
             return null;
         }
 
-        // Basic time validation before saving.
+        // Basic validation: booking must end after it starts.
         if (!requestDto.getEndTime().isAfter(requestDto.getStartTime())) {
             return null;
         }
@@ -70,6 +76,12 @@ public class BookingService {
         booking.setCreatedAt(LocalDateTime.now());
 
         Booking savedBooking = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+                NotificationType.BOOKING,
+                "New booking request created",
+                "A booking request was created for resource: " + resource.getName());
+
         return mapToResponseDto(savedBooking);
     }
 
@@ -84,6 +96,12 @@ public class BookingService {
         booking.setAdminReason(null);
 
         Booking updatedBooking = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+                NotificationType.BOOKING,
+                "Booking approved",
+                "Booking #" + booking.getId() + " has been approved.");
+
         return mapToResponseDto(updatedBooking);
     }
 
@@ -98,6 +116,12 @@ public class BookingService {
         booking.setAdminReason(reason);
 
         Booking updatedBooking = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+                NotificationType.BOOKING,
+                "Booking rejected",
+                "Booking #" + booking.getId() + " has been rejected.");
+
         return mapToResponseDto(updatedBooking);
     }
 
@@ -112,6 +136,12 @@ public class BookingService {
         booking.setAdminReason(reason);
 
         Booking updatedBooking = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+                NotificationType.BOOKING,
+                "Booking cancelled",
+                "Booking #" + booking.getId() + " has been cancelled.");
+
         return mapToResponseDto(updatedBooking);
     }
 
