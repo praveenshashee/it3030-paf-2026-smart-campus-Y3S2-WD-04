@@ -419,22 +419,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
   padding-top: 18px;
   padding-bottom: 10px;
 }
 
 .landing-brand {
+  flex: 0 0 auto;
   text-decoration: none;
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .landing-nav-links {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-width: 0;
 }
 
 .landing-nav-link {
@@ -449,6 +455,26 @@ body {
 .landing-nav-link:hover {
   background: rgba(31, 59, 99, 0.08);
   color: var(--primary);
+}
+
+.landing-nav-auth {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.landing-user-box {
+  max-width: 180px;
+}
+
+.landing-user-box .navbar-user-name,
+.landing-user-box .navbar-user-role {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .landing-stats-row {
@@ -520,6 +546,16 @@ body {
 
   .landing-nav-links {
     flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .landing-nav-auth {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .landing-user-box {
+    align-items: flex-start;
   }
 
   .module-preview-actions {
@@ -544,16 +580,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   padding-top: 14px;
   padding-bottom: 14px;
 }
 
 .app-brand {
+  flex: 0 0 auto;
   text-decoration: none;
   font-size: 1.18rem;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.app-navbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  min-width: 0;
 }
 
 .app-nav-links {
@@ -589,6 +636,13 @@ body {
 
 @media (max-width: 640px) {
   .app-navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .app-navbar-actions {
+    width: 100%;
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
@@ -950,6 +1004,18 @@ body {
   flex-wrap: wrap;
 }
 
+.auth-required-card {
+  text-align: left;
+}
+
+.auth-required-badge {
+  margin-bottom: 14px;
+}
+
+.auth-required-actions {
+  align-items: center;
+}
+
 @media (max-width: 640px) {
   .custom-modal-actions {
     flex-direction: column;
@@ -1124,7 +1190,7 @@ body {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-left: 16px;
+  flex: 0 0 auto;
 }
 
 .navbar-user-box {
@@ -1149,14 +1215,30 @@ body {
 }
 
 @media (max-width: 992px) {
+  .app-navbar {
+    align-items: flex-start;
+  }
+
+  .app-navbar-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
   .navbar-auth-section {
-    width: 100%;
     justify-content: flex-end;
-    margin-left: 0;
   }
 }
 
 @media (max-width: 640px) {
+  .app-navbar-actions {
+    align-items: flex-start;
+  }
+
+  .app-nav-links {
+    justify-content: flex-start;
+  }
+
   .navbar-auth-section {
     justify-content: flex-start;
   }
@@ -1164,4 +1246,10 @@ body {
   .navbar-user-box {
     align-items: flex-start;
   }
+}
+
+.page-content-narrow {
+  max-width: 920px;
+  margin: 0 auto;
+  width: 100%;
 }

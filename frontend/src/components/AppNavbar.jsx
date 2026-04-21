@@ -32,69 +32,71 @@ function AppNavbar() {
                     Smart Campus Hub
                 </Link>
 
-                <div className="app-nav-links">
-                    <NavLink
-                        to="/resources"
-                        className={({ isActive }) =>
-                            `app-nav-link ${isActive ? 'active' : ''}`
-                        }
-                    >
-                        Resources
-                    </NavLink>
+                <div className="app-navbar-actions">
+                    <div className="app-nav-links">
+                        <NavLink
+                            to="/resources"
+                            className={({ isActive }) =>
+                                `app-nav-link ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            Resources
+                        </NavLink>
 
-                    <NavLink
-                        to="/bookings"
-                        className={({ isActive }) =>
-                            `app-nav-link ${isActive ? 'active' : ''}`
-                        }
-                    >
-                        Bookings
-                    </NavLink>
+                        <NavLink
+                            to="/bookings"
+                            className={({ isActive }) =>
+                                `app-nav-link ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            Bookings
+                        </NavLink>
 
-                    <NavLink
-                        to="/tickets"
-                        className={({ isActive }) =>
-                            `app-nav-link ${isActive ? 'active' : ''}`
-                        }
-                    >
-                        Tickets
-                    </NavLink>
+                        <NavLink
+                            to="/tickets"
+                            className={({ isActive }) =>
+                                `app-nav-link ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            Tickets
+                        </NavLink>
 
-                    <NavLink
-                        to="/notifications"
-                        className={({ isActive }) =>
-                            `notification-bell-btn ${isActive ? 'active' : ''}`
-                        }
-                        aria-label="Notifications"
-                        title="Notifications"
-                    >
-                        <span className="notification-bell-icon">🔔</span>
+                        <NavLink
+                            to="/notifications"
+                            className={({ isActive }) =>
+                                `notification-bell-btn ${isActive ? 'active' : ''}`
+                            }
+                            aria-label="Notifications"
+                            title="Notifications"
+                        >
+                            <span className="notification-bell-icon">🔔</span>
 
-                        {unreadCount > 0 && (
-                            <span className="notification-badge">
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
+                            {unreadCount > 0 && (
+                                <span className="notification-badge">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </NavLink>
+                    </div>
+
+                    <div className="navbar-auth-section">
+                        {user ? (
+                            <>
+                                <div className="navbar-user-box">
+                                    <span className="navbar-user-name">{user.fullName}</span>
+                                    <span className="navbar-user-role">{user.role}</span>
+                                </div>
+
+                                <button className="btn btn-secondary btn-sm" onClick={logout}>
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <Link to="/login" className="btn btn-primary btn-sm link-btn">
+                                Login
+                            </Link>
                         )}
-                    </NavLink>
-                </div>
-
-                <div className="navbar-auth-section">
-                    {user ? (
-                        <>
-                            <div className="navbar-user-box">
-                                <span className="navbar-user-name">{user.fullName}</span>
-                                <span className="navbar-user-role">{user.role}</span>
-                            </div>
-
-                            <button className="btn btn-secondary btn-sm" onClick={logout}>
-                                Logout
-                            </button>
-                        </>
-                    ) : (
-                        <Link to="/login" className="btn btn-primary btn-sm link-btn">
-                            Login
-                        </Link>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

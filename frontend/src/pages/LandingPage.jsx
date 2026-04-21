@@ -1,7 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
+import { useAuth } from '../context/AuthContext';
 
 function LandingPage() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    const showLoginPrompt = Boolean(location.state?.loginRequired);
+
+    const closeLoginPrompt = () => {
+        navigate('/', { replace: true, state: null });
+    };
+
     return (
         <PageTransition>
             <div className="landing-page-shell">
@@ -24,6 +35,25 @@ function LandingPage() {
                             <Link to="/notifications" className="landing-nav-link">
                                 Notifications
                             </Link>
+                        </div>
+
+                        <div className="landing-nav-auth">
+                            {user ? (
+                                <>
+                                    <div className="navbar-user-box landing-user-box">
+                                        <span className="navbar-user-name">{user.fullName}</span>
+                                        <span className="navbar-user-role">{user.role}</span>
+                                    </div>
+
+                                    <button className="btn btn-secondary btn-sm" onClick={logout}>
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <Link to="/login" className="btn btn-primary btn-sm link-btn">
+                                    Login
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -198,6 +228,42 @@ function LandingPage() {
                         </div>
                     </div>
                 </footer>
+
+                {showLoginPrompt && (
+                    <div className="custom-modal-overlay">
+                        <div className="glass-card custom-modal-card auth-required-card">
+                            <span className="landing-badge auth-required-badge">
+                                Login required
+                            </span>
+
+                            <h3 className="custom-modal-title">
+                                Sign in to continue
+                            </h3>
+
+                            <p className="custom-modal-text">
+                                You need to log in or create an account before creating
+                                resources, bookings, or tickets.
+                            </p>
+
+                            <div className="custom-modal-actions auth-required-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={closeLoginPrompt}
+                                >
+                                    Stay on Landing
+                                </button>
+
+                                <Link
+                                    to="/login"
+                                    className="btn btn-primary link-btn"
+                                    state={{ from: location.state?.requestedPath || '/' }}
+                                >
+                                    Login / Sign up
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </PageTransition>
     );

@@ -49,25 +49,27 @@ function CreateResourcePage() {
             <>
                 <AppNavbar />
                 <div className="page-shell">
-                    <div className="page-header">
-                        <h1>Create Resource</h1>
-                        <p>Add a new facility or asset to the system.</p>
+                    <div className="page-content-narrow">
+                        <div className="page-header">
+                            <h1>Create Resource</h1>
+                            <p>Add a new facility or asset to the system.</p>
+                        </div>
+
+                        <div className="top-actions">
+                            <Link to="/resources" className="btn btn-secondary link-btn">
+                                Back to Resources
+                            </Link>
+                        </div>
+
+                        {error && <div className="alert alert-danger">{error}</div>}
+
+                        <ResourceForm
+                            formData={formData}
+                            onChange={handleChange}
+                            onSubmit={handleSubmit}
+                            submitLabel="Create Resource"
+                        />
                     </div>
-
-                    <div className="top-actions">
-                        <Link to="/resources" className="btn btn-secondary link-btn">
-                            Back to Resources
-                        </Link>
-                    </div>
-
-                    {error && <div className="alert alert-danger">{error}</div>}
-
-                    <ResourceForm
-                        formData={formData}
-                        onChange={handleChange}
-                        onSubmit={handleSubmit}
-                        submitLabel="Create Resource"
-                    />
                 </div>
             </>
         </PageTransition>

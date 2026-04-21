@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
             console.error('Logout request failed.', error);
         } finally {
             setUser(null);
-            window.location.href = '/login';
+            window.location.href = '/';
         }
     };
 
