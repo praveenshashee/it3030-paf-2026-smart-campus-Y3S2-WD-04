@@ -85,6 +85,15 @@ function TicketsPage() {
     const canClose = (status) => status === 'RESOLVED';
     const canReject = (status) => status === 'OPEN' || status === 'IN_PROGRESS';
 
+    // Quick summary values for the top cards.
+    const totalTickets = tickets.length;
+    const openOrInProgressTickets = tickets.filter(
+        (ticket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+    ).length;
+    const resolvedOrClosedTickets = tickets.filter(
+        (ticket) => ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'
+    ).length;
+
     return (
         <PageTransition>
             <>
@@ -94,6 +103,23 @@ function TicketsPage() {
                     <div className="page-header">
                         <h1>Tickets</h1>
                         <p>Manage maintenance and incident reports.</p>
+                    </div>
+
+                    <div className="summary-grid">
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Total Tickets</span>
+                            <strong className="summary-value">{totalTickets}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Open / In Progress</span>
+                            <strong className="summary-value">{openOrInProgressTickets}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Resolved / Closed</span>
+                            <strong className="summary-value">{resolvedOrClosedTickets}</strong>
+                        </div>
                     </div>
 
                     <div className="top-actions">
