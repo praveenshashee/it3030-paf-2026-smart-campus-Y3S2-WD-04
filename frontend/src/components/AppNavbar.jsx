@@ -1,9 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getAllNotifications } from '../services/notificationService';
+import { useAuth } from '../context/AuthContext';
 
 function AppNavbar() {
     const [unreadCount, setUnreadCount] = useState(0);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         fetchUnreadNotifications();
@@ -74,6 +76,25 @@ function AppNavbar() {
                             </span>
                         )}
                     </NavLink>
+                </div>
+
+                <div className="navbar-auth-section">
+                    {user ? (
+                        <>
+                            <div className="navbar-user-box">
+                                <span className="navbar-user-name">{user.fullName}</span>
+                                <span className="navbar-user-role">{user.role}</span>
+                            </div>
+
+                            <button className="btn btn-secondary btn-sm" onClick={logout}>
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <Link to="/login" className="btn btn-primary btn-sm link-btn">
+                            Login
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>
