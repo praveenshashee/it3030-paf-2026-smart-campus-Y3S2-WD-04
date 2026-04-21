@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
@@ -9,6 +9,10 @@ function TicketsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedPriority, setSelectedPriority] = useState('');
 
     useEffect(() => {
         fetchTickets();
@@ -85,7 +89,6 @@ function TicketsPage() {
     const canClose = (status) => status === 'RESOLVED';
     const canReject = (status) => status === 'OPEN' || status === 'IN_PROGRESS';
 
-    // Quick summary values for the top cards.
     const totalTickets = tickets.length;
     const openOrInProgressTickets = tickets.filter(
         (ticket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
@@ -93,6 +96,22 @@ function TicketsPage() {
     const resolvedOrClosedTickets = tickets.filter(
         (ticket) => ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'
     ).length;
+
+    const filteredTickets = useMemo(() => {
+        return tickets.filter((ticket) => {
+            const matchesSearch =
+                ticket.locationText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                ticket.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesStatus =
+                selectedStatus === '' || ticket.status === selectedStatus;
+
+            const matchesPriority =
+                selectedPriority === '' || ticket.priority === selectedPriority;
+
+            return matchesSearch && matchesStatus && matchesPriority;
+        });
+    }, [tickets, searchTerm, selectedStatus, selectedPriority]);
 
     return (
         <PageTransition>
@@ -122,10 +141,55 @@ function TicketsPage() {
                         </div>
                     </div>
 
-                    <div className="top-actions">
-                        <Link to="/tickets/create" className="btn btn-primary link-btn">
-                            Create Ticket
-                        </Link>
+                    <div className="glass-card filter-toolbar">
+                        <div className="filter-toolbar-grid tickets-toolbar-grid">
+                            <div className="filter-field filter-field-search">
+                                <label className="form-label compact-label">Search</label>
+                                <input
+                                    type="text"
+                                    className="form-control compact-control"
+                                    placeholder="Search by location or category"
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                />
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Status</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedStatus}
+                                    onChange={(event) => setSelectedStatus(event.target.value)}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="OPEN">Open</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="RESOLVED">Resolved</option>
+                                    <option value="CLOSED">Closed</option>
+                                    <option value="REJECTED">Rejected</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Priority</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedPriority}
+                                    onChange={(event) => setSelectedPriority(event.target.value)}
+                                >
+                                    <option value="">All Priorities</option>
+                                    <option value="LOW">Low</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HIGH">High</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-action">
+                                <Link to="/tickets/create" className="btn btn-primary link-btn w-100">
+                                    Create Ticket
+                                </Link>
+                            </div>
+                        </div>
                     </div>
 
                     {successMessage && (
@@ -153,8 +217,8 @@ function TicketsPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {tickets.length > 0 ? (
-                                            tickets.map((ticket) => (
+                                        {filteredTickets.length > 0 ? (
+                                            filteredTickets.map((ticket) => (
                                                 <tr key={ticket.id}>
                                                     <td>{ticket.id}</td>
                                                     <td>{ticket.resourceName || '-'}</td>
@@ -220,7 +284,7 @@ function TicketsPage() {
                                         ) : (
                                             <tr>
                                                 <td colSpan="9" className="empty-state">
-                                                    No tickets found.
+                                                    No tickets match the current filters.
                                                 </td>
                                             </tr>
                                         )}

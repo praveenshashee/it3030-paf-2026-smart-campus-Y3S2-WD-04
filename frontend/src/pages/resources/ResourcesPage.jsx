@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
@@ -9,6 +9,10 @@ function ResourcesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedType, setSelectedType] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
 
     useEffect(() => {
         fetchResources();
@@ -54,7 +58,7 @@ function ResourcesPage() {
             : 'status-badge status-out';
     };
 
-    // Small page summary values for quick overview.
+    // Page summary values.
     const totalResources = resources.length;
     const activeResources = resources.filter(
         (resource) => resource.status === 'ACTIVE'
@@ -62,6 +66,23 @@ function ResourcesPage() {
     const outOfServiceResources = resources.filter(
         (resource) => resource.status === 'OUT_OF_SERVICE'
     ).length;
+
+    // Filter resources on the frontend for faster UI interaction.
+    const filteredResources = useMemo(() => {
+        return resources.filter((resource) => {
+            const matchesSearch =
+                resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                resource.location.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesType =
+                selectedType === '' || resource.type === selectedType;
+
+            const matchesStatus =
+                selectedStatus === '' || resource.status === selectedStatus;
+
+            return matchesSearch && matchesType && matchesStatus;
+        });
+    }, [resources, searchTerm, selectedType, selectedStatus]);
 
     return (
         <PageTransition>
@@ -91,10 +112,53 @@ function ResourcesPage() {
                         </div>
                     </div>
 
-                    <div className="top-actions">
-                        <Link to="/resources/create" className="btn btn-primary link-btn">
-                            Create Resource
-                        </Link>
+                    <div className="glass-card filter-toolbar">
+                        <div className="filter-toolbar-grid">
+                            <div className="filter-field filter-field-search">
+                                <label className="form-label compact-label">Search</label>
+                                <input
+                                    type="text"
+                                    className="form-control compact-control"
+                                    placeholder="Search by name or location"
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                />
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Type</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedType}
+                                    onChange={(event) => setSelectedType(event.target.value)}
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="LECTURE_HALL">Lecture Hall</option>
+                                    <option value="LAB">Lab</option>
+                                    <option value="MEETING_ROOM">Meeting Room</option>
+                                    <option value="EQUIPMENT">Equipment</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Status</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedStatus}
+                                    onChange={(event) => setSelectedStatus(event.target.value)}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="OUT_OF_SERVICE">Out of Service</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-action">
+                                <Link to="/resources/create" className="btn btn-primary link-btn w-100">
+                                    Create Resource
+                                </Link>
+                            </div>
+                        </div>
                     </div>
 
                     {successMessage && (
@@ -120,8 +184,8 @@ function ResourcesPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {resources.length > 0 ? (
-                                            resources.map((resource) => (
+                                        {filteredResources.length > 0 ? (
+                                            filteredResources.map((resource) => (
                                                 <tr key={resource.id}>
                                                     <td>{resource.id}</td>
                                                     <td>{resource.name}</td>
@@ -155,7 +219,7 @@ function ResourcesPage() {
                                         ) : (
                                             <tr>
                                                 <td colSpan="7" className="empty-state">
-                                                    No resources found.
+                                                    No resources match the current filters.
                                                 </td>
                                             </tr>
                                         )}

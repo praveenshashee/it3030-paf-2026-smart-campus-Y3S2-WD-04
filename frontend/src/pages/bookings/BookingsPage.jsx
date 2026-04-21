@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
@@ -14,6 +14,9 @@ function BookingsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
 
     useEffect(() => {
         fetchBookings();
@@ -95,7 +98,6 @@ function BookingsPage() {
     const canReject = (status) => status === 'PENDING';
     const canCancel = (status) => status === 'PENDING' || status === 'APPROVED';
 
-    // Quick summary values for the top cards.
     const totalBookings = bookings.length;
     const pendingBookings = bookings.filter(
         (booking) => booking.status === 'PENDING'
@@ -103,6 +105,19 @@ function BookingsPage() {
     const approvedBookings = bookings.filter(
         (booking) => booking.status === 'APPROVED'
     ).length;
+
+    const filteredBookings = useMemo(() => {
+        return bookings.filter((booking) => {
+            const matchesSearch =
+                booking.resourceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                booking.purpose.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesStatus =
+                selectedStatus === '' || booking.status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+    }, [bookings, searchTerm, selectedStatus]);
 
     return (
         <PageTransition>
@@ -132,10 +147,40 @@ function BookingsPage() {
                         </div>
                     </div>
 
-                    <div className="top-actions">
-                        <Link to="/bookings/create" className="btn btn-primary link-btn">
-                            Create Booking
-                        </Link>
+                    <div className="glass-card filter-toolbar">
+                        <div className="filter-toolbar-grid bookings-toolbar-grid">
+                            <div className="filter-field filter-field-search">
+                                <label className="form-label compact-label">Search</label>
+                                <input
+                                    type="text"
+                                    className="form-control compact-control"
+                                    placeholder="Search by resource or purpose"
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                />
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Status</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedStatus}
+                                    onChange={(event) => setSelectedStatus(event.target.value)}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="REJECTED">Rejected</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-action">
+                                <Link to="/bookings/create" className="btn btn-primary link-btn w-100">
+                                    Create Booking
+                                </Link>
+                            </div>
+                        </div>
                     </div>
 
                     {successMessage && (
@@ -164,8 +209,8 @@ function BookingsPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {bookings.length > 0 ? (
-                                            bookings.map((booking) => (
+                                        {filteredBookings.length > 0 ? (
+                                            filteredBookings.map((booking) => (
                                                 <tr key={booking.id}>
                                                     <td>{booking.id}</td>
                                                     <td>{booking.resourceName}</td>
@@ -215,7 +260,7 @@ function BookingsPage() {
                                         ) : (
                                             <tr>
                                                 <td colSpan="10" className="empty-state">
-                                                    No bookings found.
+                                                    No bookings match the current filters.
                                                 </td>
                                             </tr>
                                         )}
