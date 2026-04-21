@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
-import { formatDate, formatTime } from '../../utils/formatters';
 import {
     approveBooking,
     cancelBooking,
     getAllBookings,
     rejectBooking,
 } from '../../services/bookingService';
+import { formatDate, formatTime } from '../../utils/formatters';
 
 function BookingsPage() {
     const [bookings, setBookings] = useState([]);
@@ -18,6 +18,13 @@ function BookingsPage() {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
+
+    const [bookingActionModal, setBookingActionModal] = useState({
+        open: false,
+        booking: null,
+        action: '',
+        reason: '',
+    });
 
     useEffect(() => {
         fetchBookings();
@@ -49,40 +56,53 @@ function BookingsPage() {
         }
     };
 
-    const handleReject = async (id) => {
-        const reason = window.prompt('Enter a reason for rejecting this booking:');
-
-        if (reason === null) {
-            return;
-        }
-
-        try {
-            await rejectBooking(id, reason);
-            setSuccessMessage('Booking rejected successfully.');
-            setError('');
-            fetchBookings();
-        } catch (err) {
-            setSuccessMessage('');
-            setError('Failed to reject booking.');
-            console.error(err);
-        }
+    const openBookingActionModal = (booking, action) => {
+        setBookingActionModal({
+            open: true,
+            booking,
+            action,
+            reason: '',
+        });
     };
 
-    const handleCancel = async (id) => {
-        const reason = window.prompt('Enter a reason for cancelling this booking:');
+    const closeBookingActionModal = () => {
+        setBookingActionModal({
+            open: false,
+            booking: null,
+            action: '',
+            reason: '',
+        });
+    };
 
-        if (reason === null) {
+    const handleBookingActionConfirm = async () => {
+        const { booking, action, reason } = bookingActionModal;
+
+        if (!booking) {
+            return;
+        }
+
+        if (!reason.trim()) {
+            setError('Please enter a reason before continuing.');
             return;
         }
 
         try {
-            await cancelBooking(id, reason);
-            setSuccessMessage('Booking cancelled successfully.');
+            if (action === 'reject') {
+                await rejectBooking(booking.id, reason);
+                setSuccessMessage('Booking rejected successfully.');
+            }
+
+            if (action === 'cancel') {
+                await cancelBooking(booking.id, reason);
+                setSuccessMessage('Booking cancelled successfully.');
+            }
+
             setError('');
+            closeBookingActionModal();
             fetchBookings();
         } catch (err) {
             setSuccessMessage('');
-            setError('Failed to cancel booking.');
+            setError('Failed to update booking.');
             console.error(err);
         }
     };
@@ -119,6 +139,8 @@ function BookingsPage() {
             return matchesSearch && matchesStatus;
         });
     }, [bookings, searchTerm, selectedStatus]);
+
+    const isRejectAction = bookingActionModal.action === 'reject';
 
     return (
         <PageTransition>
@@ -240,7 +262,9 @@ function BookingsPage() {
                                                             {canReject(booking.status) && (
                                                                 <button
                                                                     className="btn btn-warning btn-sm"
-                                                                    onClick={() => handleReject(booking.id)}
+                                                                    onClick={() =>
+                                                                        openBookingActionModal(booking, 'reject')
+                                                                    }
                                                                 >
                                                                     Reject
                                                                 </button>
@@ -249,7 +273,9 @@ function BookingsPage() {
                                                             {canCancel(booking.status) && (
                                                                 <button
                                                                     className="btn btn-danger btn-sm"
-                                                                    onClick={() => handleCancel(booking.id)}
+                                                                    onClick={() =>
+                                                                        openBookingActionModal(booking, 'cancel')
+                                                                    }
                                                                 >
                                                                     Cancel
                                                                 </button>
@@ -271,6 +297,55 @@ function BookingsPage() {
                         </div>
                     )}
                 </div>
+
+                {bookingActionModal.open && (
+                    <div className="custom-modal-overlay">
+                        <div className="glass-card custom-modal-card">
+                            <h3 className="custom-modal-title">
+                                {isRejectAction ? 'Reject Booking' : 'Cancel Booking'}
+                            </h3>
+
+                            <p className="custom-modal-text">
+                                {isRejectAction
+                                    ? 'Provide a reason for rejecting this booking request.'
+                                    : 'Provide a reason for cancelling this booking.'}
+                            </p>
+
+                            <textarea
+                                className="form-control modal-textarea"
+                                rows="4"
+                                placeholder={
+                                    isRejectAction
+                                        ? 'Enter rejection reason'
+                                        : 'Enter cancellation reason'
+                                }
+                                value={bookingActionModal.reason}
+                                onChange={(event) =>
+                                    setBookingActionModal((previous) => ({
+                                        ...previous,
+                                        reason: event.target.value,
+                                    }))
+                                }
+                            />
+
+                            <div className="custom-modal-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={closeBookingActionModal}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className={`btn ${isRejectAction ? 'btn-warning' : 'btn-danger'}`}
+                                    onClick={handleBookingActionConfirm}
+                                >
+                                    {isRejectAction ? 'Reject Booking' : 'Cancel Booking'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </>
         </PageTransition>
     );

@@ -14,6 +14,15 @@ function TicketsPage() {
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedPriority, setSelectedPriority] = useState('');
 
+    const [ticketActionModal, setTicketActionModal] = useState({
+        open: false,
+        ticket: null,
+        action: '',
+        assignedTechnicianName: '',
+        resolutionNotes: '',
+        rejectionReason: '',
+    });
+
     useEffect(() => {
         fetchTickets();
     }, []);
@@ -31,31 +40,57 @@ function TicketsPage() {
         }
     };
 
-    const handleStatusUpdate = async (ticketId, status) => {
-        let assignedTechnicianName = '';
-        let resolutionNotes = '';
-        let rejectionReason = '';
+    const openTicketActionModal = (ticket, action) => {
+        setTicketActionModal({
+            open: true,
+            ticket,
+            action,
+            assignedTechnicianName: ticket.assignedTechnicianName || '',
+            resolutionNotes: '',
+            rejectionReason: '',
+        });
+    };
 
-        if (status === 'IN_PROGRESS') {
-            assignedTechnicianName =
-                window.prompt('Enter technician name (optional):') || '';
+    const closeTicketActionModal = () => {
+        setTicketActionModal({
+            open: false,
+            ticket: null,
+            action: '',
+            assignedTechnicianName: '',
+            resolutionNotes: '',
+            rejectionReason: '',
+        });
+    };
+
+    const handleStatusUpdate = async () => {
+        const {
+            ticket,
+            action,
+            assignedTechnicianName,
+            resolutionNotes,
+            rejectionReason,
+        } = ticketActionModal;
+
+        if (!ticket) {
+            return;
         }
 
-        if (status === 'RESOLVED' || status === 'CLOSED') {
-            resolutionNotes =
-                window.prompt('Enter resolution notes (optional):') || '';
-        }
+        const actionToStatusMap = {
+            start: 'IN_PROGRESS',
+            resolve: 'RESOLVED',
+            close: 'CLOSED',
+            reject: 'REJECTED',
+        };
 
-        if (status === 'REJECTED') {
-            rejectionReason = window.prompt('Enter rejection reason:') || '';
+        const status = actionToStatusMap[action];
 
-            if (!rejectionReason.trim()) {
-                return;
-            }
+        if (action === 'reject' && !rejectionReason.trim()) {
+            setError('Please enter a rejection reason before continuing.');
+            return;
         }
 
         try {
-            await updateTicketStatus(ticketId, {
+            await updateTicketStatus(ticket.id, {
                 status,
                 assignedTechnicianName,
                 resolutionNotes,
@@ -64,6 +99,7 @@ function TicketsPage() {
 
             setSuccessMessage(`Ticket updated to ${status}.`);
             setError('');
+            closeTicketActionModal();
             fetchTickets();
         } catch (err) {
             setSuccessMessage('');
@@ -112,6 +148,11 @@ function TicketsPage() {
             return matchesSearch && matchesStatus && matchesPriority;
         });
     }, [tickets, searchTerm, selectedStatus, selectedPriority]);
+
+    const isStartAction = ticketActionModal.action === 'start';
+    const isResolveAction = ticketActionModal.action === 'resolve';
+    const isCloseAction = ticketActionModal.action === 'close';
+    const isRejectAction = ticketActionModal.action === 'reject';
 
     return (
         <PageTransition>
@@ -237,9 +278,7 @@ function TicketsPage() {
                                                             {canStart(ticket.status) && (
                                                                 <button
                                                                     className="btn btn-info btn-sm"
-                                                                    onClick={() =>
-                                                                        handleStatusUpdate(ticket.id, 'IN_PROGRESS')
-                                                                    }
+                                                                    onClick={() => openTicketActionModal(ticket, 'start')}
                                                                 >
                                                                     Start
                                                                 </button>
@@ -248,9 +287,7 @@ function TicketsPage() {
                                                             {canResolve(ticket.status) && (
                                                                 <button
                                                                     className="btn btn-success btn-sm"
-                                                                    onClick={() =>
-                                                                        handleStatusUpdate(ticket.id, 'RESOLVED')
-                                                                    }
+                                                                    onClick={() => openTicketActionModal(ticket, 'resolve')}
                                                                 >
                                                                     Resolve
                                                                 </button>
@@ -259,9 +296,7 @@ function TicketsPage() {
                                                             {canClose(ticket.status) && (
                                                                 <button
                                                                     className="btn btn-secondary btn-sm"
-                                                                    onClick={() =>
-                                                                        handleStatusUpdate(ticket.id, 'CLOSED')
-                                                                    }
+                                                                    onClick={() => openTicketActionModal(ticket, 'close')}
                                                                 >
                                                                     Close
                                                                 </button>
@@ -270,9 +305,7 @@ function TicketsPage() {
                                                             {canReject(ticket.status) && (
                                                                 <button
                                                                     className="btn btn-danger btn-sm"
-                                                                    onClick={() =>
-                                                                        handleStatusUpdate(ticket.id, 'REJECTED')
-                                                                    }
+                                                                    onClick={() => openTicketActionModal(ticket, 'reject')}
                                                                 >
                                                                     Reject
                                                                 </button>
@@ -294,6 +327,97 @@ function TicketsPage() {
                         </div>
                     )}
                 </div>
+
+                {ticketActionModal.open && (
+                    <div className="custom-modal-overlay">
+                        <div className="glass-card custom-modal-card">
+                            <h3 className="custom-modal-title">
+                                {isStartAction && 'Start Ticket'}
+                                {isResolveAction && 'Resolve Ticket'}
+                                {isCloseAction && 'Close Ticket'}
+                                {isRejectAction && 'Reject Ticket'}
+                            </h3>
+
+                            <p className="custom-modal-text">
+                                {isStartAction && 'You can optionally assign a technician before starting this ticket.'}
+                                {isResolveAction && 'Add optional resolution notes before marking this ticket as resolved.'}
+                                {isCloseAction && 'Add optional closing notes before closing this ticket.'}
+                                {isRejectAction && 'Please provide a rejection reason before rejecting this ticket.'}
+                            </p>
+
+                            {isStartAction && (
+                                <input
+                                    type="text"
+                                    className="form-control modal-input"
+                                    placeholder="Enter technician name (optional)"
+                                    value={ticketActionModal.assignedTechnicianName}
+                                    onChange={(event) =>
+                                        setTicketActionModal((previous) => ({
+                                            ...previous,
+                                            assignedTechnicianName: event.target.value,
+                                        }))
+                                    }
+                                />
+                            )}
+
+                            {(isResolveAction || isCloseAction) && (
+                                <textarea
+                                    className="form-control modal-textarea"
+                                    rows="4"
+                                    placeholder="Enter resolution notes (optional)"
+                                    value={ticketActionModal.resolutionNotes}
+                                    onChange={(event) =>
+                                        setTicketActionModal((previous) => ({
+                                            ...previous,
+                                            resolutionNotes: event.target.value,
+                                        }))
+                                    }
+                                />
+                            )}
+
+                            {isRejectAction && (
+                                <textarea
+                                    className="form-control modal-textarea"
+                                    rows="4"
+                                    placeholder="Enter rejection reason"
+                                    value={ticketActionModal.rejectionReason}
+                                    onChange={(event) =>
+                                        setTicketActionModal((previous) => ({
+                                            ...previous,
+                                            rejectionReason: event.target.value,
+                                        }))
+                                    }
+                                />
+                            )}
+
+                            <div className="custom-modal-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={closeTicketActionModal}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className={`btn ${isRejectAction
+                                            ? 'btn-danger'
+                                            : isResolveAction
+                                                ? 'btn-success'
+                                                : isCloseAction
+                                                    ? 'btn-secondary'
+                                                    : 'btn-info'
+                                        }`}
+                                    onClick={handleStatusUpdate}
+                                >
+                                    {isStartAction && 'Start Ticket'}
+                                    {isResolveAction && 'Resolve Ticket'}
+                                    {isCloseAction && 'Close Ticket'}
+                                    {isRejectAction && 'Reject Ticket'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </>
         </PageTransition>
     );

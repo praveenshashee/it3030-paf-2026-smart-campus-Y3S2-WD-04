@@ -14,6 +14,8 @@ function ResourcesPage() {
     const [selectedType, setSelectedType] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
 
+    const [resourceToDelete, setResourceToDelete] = useState(null);
+
     useEffect(() => {
         fetchResources();
     }, []);
@@ -31,19 +33,24 @@ function ResourcesPage() {
         }
     };
 
-    const handleDelete = async (id) => {
-        const confirmed = window.confirm(
-            'Are you sure you want to delete this resource?'
-        );
+    const openDeleteModal = (resource) => {
+        setResourceToDelete(resource);
+    };
 
-        if (!confirmed) {
+    const closeDeleteModal = () => {
+        setResourceToDelete(null);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        if (!resourceToDelete) {
             return;
         }
 
         try {
-            await deleteResource(id);
+            await deleteResource(resourceToDelete.id);
             setSuccessMessage('Resource deleted successfully.');
             setError('');
+            closeDeleteModal();
             fetchResources();
         } catch (err) {
             setSuccessMessage('');
@@ -58,7 +65,6 @@ function ResourcesPage() {
             : 'status-badge status-out';
     };
 
-    // Page summary values.
     const totalResources = resources.length;
     const activeResources = resources.filter(
         (resource) => resource.status === 'ACTIVE'
@@ -67,7 +73,6 @@ function ResourcesPage() {
         (resource) => resource.status === 'OUT_OF_SERVICE'
     ).length;
 
-    // Filter resources on the frontend for faster UI interaction.
     const filteredResources = useMemo(() => {
         return resources.filter((resource) => {
             const matchesSearch =
@@ -208,7 +213,7 @@ function ResourcesPage() {
 
                                                             <button
                                                                 className="btn btn-danger btn-sm"
-                                                                onClick={() => handleDelete(resource.id)}
+                                                                onClick={() => openDeleteModal(resource)}
                                                             >
                                                                 Delete
                                                             </button>
@@ -229,6 +234,36 @@ function ResourcesPage() {
                         </div>
                     )}
                 </div>
+
+                {resourceToDelete && (
+                    <div className="custom-modal-overlay">
+                        <div className="glass-card custom-modal-card">
+                            <h3 className="custom-modal-title">Delete Resource</h3>
+
+                            <p className="custom-modal-text">
+                                Are you sure you want to delete
+                                <strong> {resourceToDelete.name}</strong>?
+                                This action cannot be undone.
+                            </p>
+
+                            <div className="custom-modal-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={closeDeleteModal}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={handleDeleteConfirmed}
+                                >
+                                    Delete Resource
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </>
         </PageTransition>
     );
