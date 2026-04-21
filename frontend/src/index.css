@@ -655,3 +655,18 @@ body {
 .booking-action-group .btn {
   width: 100%;
 }
+
+.ticket-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ticket-action-group .btn {
+  width: 100%;
+}
+
+.btn-info {
+  border: none;
+  color: white;
+}

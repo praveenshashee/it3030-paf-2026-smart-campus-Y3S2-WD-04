@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
-import { getAllTickets } from '../../services/ticketService';
+import { getAllTickets, updateTicketStatus } from '../../services/ticketService';
 
 function TicketsPage() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         fetchTickets();
@@ -26,6 +27,47 @@ function TicketsPage() {
         }
     };
 
+    const handleStatusUpdate = async (ticketId, status) => {
+        let assignedTechnicianName = '';
+        let resolutionNotes = '';
+        let rejectionReason = '';
+
+        if (status === 'IN_PROGRESS') {
+            assignedTechnicianName =
+                window.prompt('Enter technician name (optional):') || '';
+        }
+
+        if (status === 'RESOLVED' || status === 'CLOSED') {
+            resolutionNotes =
+                window.prompt('Enter resolution notes (optional):') || '';
+        }
+
+        if (status === 'REJECTED') {
+            rejectionReason = window.prompt('Enter rejection reason:') || '';
+
+            if (!rejectionReason.trim()) {
+                return;
+            }
+        }
+
+        try {
+            await updateTicketStatus(ticketId, {
+                status,
+                assignedTechnicianName,
+                resolutionNotes,
+                rejectionReason,
+            });
+
+            setSuccessMessage(`Ticket updated to ${status}.`);
+            setError('');
+            fetchTickets();
+        } catch (err) {
+            setSuccessMessage('');
+            setError('Failed to update ticket status.');
+            console.error(err);
+        }
+    };
+
     const getStatusClass = (status) => {
         if (status === 'RESOLVED' || status === 'CLOSED') {
             return 'status-badge status-active';
@@ -37,6 +79,11 @@ function TicketsPage() {
 
         return 'status-badge';
     };
+
+    const canStart = (status) => status === 'OPEN';
+    const canResolve = (status) => status === 'IN_PROGRESS';
+    const canClose = (status) => status === 'RESOLVED';
+    const canReject = (status) => status === 'OPEN' || status === 'IN_PROGRESS';
 
     return (
         <PageTransition>
@@ -55,6 +102,10 @@ function TicketsPage() {
                         </Link>
                     </div>
 
+                    {successMessage && (
+                        <div className="alert alert-success">{successMessage}</div>
+                    )}
+
                     {loading && <p>Loading tickets...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
@@ -71,6 +122,8 @@ function TicketsPage() {
                                             <th>Priority</th>
                                             <th>Status</th>
                                             <th>Technician</th>
+                                            <th>Resolution / Rejection</th>
+                                            <th style={{ width: '220px' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -88,11 +141,59 @@ function TicketsPage() {
                                                         </span>
                                                     </td>
                                                     <td>{ticket.assignedTechnicianName || '-'}</td>
+                                                    <td>{ticket.resolutionNotes || ticket.rejectionReason || '-'}</td>
+                                                    <td>
+                                                        <div className="action-group ticket-action-group">
+                                                            {canStart(ticket.status) && (
+                                                                <button
+                                                                    className="btn btn-info btn-sm"
+                                                                    onClick={() =>
+                                                                        handleStatusUpdate(ticket.id, 'IN_PROGRESS')
+                                                                    }
+                                                                >
+                                                                    Start
+                                                                </button>
+                                                            )}
+
+                                                            {canResolve(ticket.status) && (
+                                                                <button
+                                                                    className="btn btn-success btn-sm"
+                                                                    onClick={() =>
+                                                                        handleStatusUpdate(ticket.id, 'RESOLVED')
+                                                                    }
+                                                                >
+                                                                    Resolve
+                                                                </button>
+                                                            )}
+
+                                                            {canClose(ticket.status) && (
+                                                                <button
+                                                                    className="btn btn-secondary btn-sm"
+                                                                    onClick={() =>
+                                                                        handleStatusUpdate(ticket.id, 'CLOSED')
+                                                                    }
+                                                                >
+                                                                    Close
+                                                                </button>
+                                                            )}
+
+                                                            {canReject(ticket.status) && (
+                                                                <button
+                                                                    className="btn btn-danger btn-sm"
+                                                                    onClick={() =>
+                                                                        handleStatusUpdate(ticket.id, 'REJECTED')
+                                                                    }
+                                                                >
+                                                                    Reject
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="7" className="empty-state">
+                                                <td colSpan="9" className="empty-state">
                                                     No tickets found.
                                                 </td>
                                             </tr>
