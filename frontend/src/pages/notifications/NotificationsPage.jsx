@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { formatDateTime } from '../../utils/formatters';
 import {
     getAllNotifications,
+    markAllNotificationsAsRead,
     markNotificationAsRead,
 } from '../../services/notificationService';
 
@@ -12,6 +13,9 @@ function NotificationsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    const [selectedReadStatus, setSelectedReadStatus] = useState('');
+    const [selectedType, setSelectedType] = useState('');
 
     useEffect(() => {
         fetchNotifications();
@@ -43,11 +47,42 @@ function NotificationsPage() {
         }
     };
 
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsRead(notifications);
+            setSuccessMessage('All notifications marked as read.');
+            setError('');
+            fetchNotifications();
+        } catch (err) {
+            setSuccessMessage('');
+            setError('Failed to update notifications.');
+            console.error(err);
+        }
+    };
+
     const getTypeClass = (type) => {
         if (type === 'BOOKING') return 'notification-type-badge notification-booking';
         if (type === 'TICKET') return 'notification-type-badge notification-ticket';
         return 'notification-type-badge notification-general';
     };
+
+    const unreadCount = notifications.filter(
+        (notification) => !notification.isRead
+    ).length;
+
+    const filteredNotifications = useMemo(() => {
+        return notifications.filter((notification) => {
+            const matchesReadStatus =
+                selectedReadStatus === '' ||
+                (selectedReadStatus === 'UNREAD' && !notification.isRead) ||
+                (selectedReadStatus === 'READ' && notification.isRead);
+
+            const matchesType =
+                selectedType === '' || notification.type === selectedType;
+
+            return matchesReadStatus && matchesType;
+        });
+    }, [notifications, selectedReadStatus, selectedType]);
 
     return (
         <PageTransition>
@@ -60,6 +95,47 @@ function NotificationsPage() {
                         <p>Track booking and ticket activity across the system.</p>
                     </div>
 
+                    <div className="glass-card filter-toolbar">
+                        <div className="filter-toolbar-grid notifications-toolbar-grid">
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Read Status</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedReadStatus}
+                                    onChange={(event) => setSelectedReadStatus(event.target.value)}
+                                >
+                                    <option value="">All Notifications</option>
+                                    <option value="UNREAD">Unread Only</option>
+                                    <option value="READ">Read Only</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-field">
+                                <label className="form-label compact-label">Type</label>
+                                <select
+                                    className="form-select compact-control"
+                                    value={selectedType}
+                                    onChange={(event) => setSelectedType(event.target.value)}
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="BOOKING">Booking</option>
+                                    <option value="TICKET">Ticket</option>
+                                    <option value="GENERAL">General</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-action">
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={handleMarkAllAsRead}
+                                    disabled={unreadCount === 0}
+                                >
+                                    Mark All as Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     {successMessage && (
                         <div className="alert alert-success">{successMessage}</div>
                     )}
@@ -69,13 +145,13 @@ function NotificationsPage() {
 
                     {!loading && !error && (
                         <div className="notification-list">
-                            {notifications.length > 0 ? (
-                                notifications.map((notification) => (
+                            {filteredNotifications.length > 0 ? (
+                                filteredNotifications.map((notification) => (
                                     <div
                                         key={notification.id}
                                         className={`glass-card notification-card ${notification.isRead
-                                            ? 'notification-read'
-                                            : 'notification-unread'
+                                                ? 'notification-read'
+                                                : 'notification-unread'
                                             }`}
                                     >
                                         <div className="notification-card-top">
@@ -110,9 +186,9 @@ function NotificationsPage() {
                                 ))
                             ) : (
                                 <div className="glass-card notification-card empty-state-card">
-                                    <h3 className="empty-state-title">No notifications yet</h3>
+                                    <h3 className="empty-state-title">No notifications found</h3>
                                     <p className="empty-state-text mb-0">
-                                        Booking and ticket activity will appear here once actions are performed.
+                                        No notifications match the current filter settings.
                                     </p>
                                 </div>
                             )}

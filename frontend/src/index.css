@@ -992,3 +992,7 @@ body {
   gap: 12px;
   flex-wrap: wrap;
 }
+
+.notifications-toolbar-grid {
+  grid-template-columns: 1fr 1fr auto;
+}
