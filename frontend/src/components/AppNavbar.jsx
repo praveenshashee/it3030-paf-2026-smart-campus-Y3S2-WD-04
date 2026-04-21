@@ -1,14 +1,35 @@
 import { Link, NavLink } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getAllNotifications } from '../services/notificationService';
 import { useAuth } from '../context/AuthContext';
 
 function AppNavbar() {
     const [unreadCount, setUnreadCount] = useState(0);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
     const { user, logout } = useAuth();
+    const profileMenuRef = useRef(null);
 
     useEffect(() => {
         fetchUnreadNotifications();
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                profileMenuRef.current &&
+                !profileMenuRef.current.contains(event.target)
+            ) {
+                setProfileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const fetchUnreadNotifications = async () => {
@@ -25,14 +46,39 @@ function AppNavbar() {
         }
     };
 
-    return (
-        <div className="app-navbar-shell">
-            <div className="page-shell app-navbar">
-                <Link to="/" className="app-brand">
-                    Smart Campus Hub
-                </Link>
+    const getInitials = (name) => {
+        if (!name) return 'U';
 
-                <div className="app-navbar-actions">
+        return name
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0].toUpperCase())
+            .join('');
+    };
+
+    const handleLogoutClick = () => {
+        setProfileMenuOpen(false);
+        setShowLogoutModal(true);
+    };
+
+    const confirmLogout = async () => {
+        setShowLogoutModal(false);
+        await logout();
+    };
+
+    const cancelLogout = () => {
+        setShowLogoutModal(false);
+    };
+
+    return (
+        <>
+            <div className="app-navbar-shell">
+                <div className="page-shell app-navbar">
+                    <Link to="/" className="app-brand">
+                        Smart Campus Hub
+                    </Link>
+
                     <div className="app-nav-links">
                         <NavLink
                             to="/resources"
@@ -81,16 +127,68 @@ function AppNavbar() {
 
                     <div className="navbar-auth-section">
                         {user ? (
-                            <>
-                                <Link to="/profile" className="navbar-user-box navbar-user-link">
-                                    <span className="navbar-user-name">{user.fullName}</span>
-                                    <span className="navbar-user-role">{user.role}</span>
-                                </Link>
-
-                                <button className="btn btn-secondary btn-sm" onClick={logout}>
-                                    Logout
+                            <div className="profile-menu-wrapper" ref={profileMenuRef}>
+                                <button
+                                    className="profile-menu-trigger"
+                                    onClick={() => setProfileMenuOpen((previous) => !previous)}
+                                    aria-label="Open profile menu"
+                                    title="Profile"
+                                >
+                                    {user.profileImageUrl ? (
+                                        <img
+                                            src={user.profileImageUrl}
+                                            alt={user.fullName}
+                                            className="profile-menu-avatar-image"
+                                        />
+                                    ) : (
+                                        <span className="profile-menu-avatar-fallback">
+                                            {getInitials(user.fullName)}
+                                        </span>
+                                    )}
                                 </button>
-                            </>
+
+                                {profileMenuOpen && (
+                                    <div className="profile-dropdown-menu">
+                                        <div className="profile-dropdown-header">
+                                            {user.profileImageUrl ? (
+                                                <img
+                                                    src={user.profileImageUrl}
+                                                    alt={user.fullName}
+                                                    className="profile-dropdown-avatar-image"
+                                                />
+                                            ) : (
+                                                <div className="profile-dropdown-avatar-fallback">
+                                                    {getInitials(user.fullName)}
+                                                </div>
+                                            )}
+
+                                            <div className="profile-dropdown-user-info">
+                                                <strong className="profile-dropdown-name">
+                                                    {user.fullName}
+                                                </strong>
+                                                <span className="profile-dropdown-role">{user.role}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="profile-dropdown-actions">
+                                            <Link
+                                                to="/profile"
+                                                className="btn btn-primary btn-sm link-btn w-100"
+                                                onClick={() => setProfileMenuOpen(false)}
+                                            >
+                                                Dashboard
+                                            </Link>
+
+                                            <button
+                                                className="btn btn-secondary btn-sm w-100"
+                                                onClick={handleLogoutClick}
+                                            >
+                                                Logout
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <Link to="/login" className="btn btn-primary btn-sm link-btn">
                                 Login
@@ -99,7 +197,29 @@ function AppNavbar() {
                     </div>
                 </div>
             </div>
-        </div>
+
+            {showLogoutModal && (
+                <div className="custom-modal-overlay">
+                    <div className="glass-card custom-modal-card">
+                        <h3 className="custom-modal-title">Confirm Logout</h3>
+
+                        <p className="custom-modal-text">
+                            Are you sure you want to log out of your account?
+                        </p>
+
+                        <div className="custom-modal-actions">
+                            <button className="btn btn-secondary" onClick={cancelLogout}>
+                                Stay Logged In
+                            </button>
+
+                            <button className="btn btn-danger" onClick={confirmLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 

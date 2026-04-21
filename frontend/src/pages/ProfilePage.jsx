@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import AppNavbar from '../components/AppNavbar';
 import PageTransition from '../components/PageTransition';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +29,12 @@ function ProfilePage() {
                         <div className="page-header">
                             <h1>Profile</h1>
                             <p>View your account information and current access level.</p>
+                        </div>
+
+                        <div className="top-actions">
+                            <Link to="/" className="btn btn-secondary link-btn">
+                                Back to Home
+                            </Link>
                         </div>
 
                         <div className="glass-card profile-card">

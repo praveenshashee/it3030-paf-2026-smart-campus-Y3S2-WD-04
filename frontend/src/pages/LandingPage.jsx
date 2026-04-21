@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import PageTransition from '../components/PageTransition';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,10 +8,63 @@ function LandingPage() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
-    const showLoginPrompt = Boolean(location.state?.loginRequired);
+    const [showLoginRequiredModal, setShowLoginRequiredModal] = useState(false);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-    const closeLoginPrompt = () => {
-        navigate('/', { replace: true, state: null });
+    const profileMenuRef = useRef(null);
+
+    useEffect(() => {
+        if (location.state?.loginRequired) {
+            setShowLoginRequiredModal(true);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                profileMenuRef.current &&
+                !profileMenuRef.current.contains(event.target)
+            ) {
+                setProfileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const closeLoginRequiredModal = () => {
+        setShowLoginRequiredModal(false);
+        navigate(location.pathname, { replace: true, state: {} });
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'U';
+
+        return name
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0].toUpperCase())
+            .join('');
+    };
+
+    const handleLogoutClick = () => {
+        setProfileMenuOpen(false);
+        setShowLogoutModal(true);
+    };
+
+    const cancelLogout = () => {
+        setShowLogoutModal(false);
+    };
+
+    const confirmLogout = async () => {
+        setShowLogoutModal(false);
+        await logout();
     };
 
     return (
@@ -37,18 +91,72 @@ function LandingPage() {
                             </Link>
                         </div>
 
-                        <div className="landing-nav-auth">
+                        <div className="landing-auth-section">
                             {user ? (
-                                <>
-                                    <div className="navbar-user-box landing-user-box">
-                                        <span className="navbar-user-name">{user.fullName}</span>
-                                        <span className="navbar-user-role">{user.role}</span>
-                                    </div>
-
-                                    <button className="btn btn-secondary btn-sm" onClick={logout}>
-                                        Logout
+                                <div className="profile-menu-wrapper" ref={profileMenuRef}>
+                                    <button
+                                        className="profile-menu-trigger"
+                                        onClick={() => setProfileMenuOpen((previous) => !previous)}
+                                        aria-label="Open profile menu"
+                                        title="Profile"
+                                    >
+                                        {user.profileImageUrl ? (
+                                            <img
+                                                src={user.profileImageUrl}
+                                                alt={user.fullName}
+                                                className="profile-menu-avatar-image"
+                                            />
+                                        ) : (
+                                            <span className="profile-menu-avatar-fallback">
+                                                {getInitials(user.fullName)}
+                                            </span>
+                                        )}
                                     </button>
-                                </>
+
+                                    {profileMenuOpen && (
+                                        <div className="profile-dropdown-menu">
+                                            <div className="profile-dropdown-header">
+                                                {user.profileImageUrl ? (
+                                                    <img
+                                                        src={user.profileImageUrl}
+                                                        alt={user.fullName}
+                                                        className="profile-dropdown-avatar-image"
+                                                    />
+                                                ) : (
+                                                    <div className="profile-dropdown-avatar-fallback">
+                                                        {getInitials(user.fullName)}
+                                                    </div>
+                                                )}
+
+                                                <div className="profile-dropdown-user-info">
+                                                    <strong className="profile-dropdown-name">
+                                                        {user.fullName}
+                                                    </strong>
+                                                    <span className="profile-dropdown-role">
+                                                        {user.role}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="profile-dropdown-actions">
+                                                <Link
+                                                    to="/profile"
+                                                    className="btn btn-primary btn-sm link-btn w-100"
+                                                    onClick={() => setProfileMenuOpen(false)}
+                                                >
+                                                    Dashboard
+                                                </Link>
+
+                                                <button
+                                                    className="btn btn-secondary btn-sm w-100"
+                                                    onClick={handleLogoutClick}
+                                                >
+                                                    Logout
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <Link to="/login" className="btn btn-primary btn-sm link-btn">
                                     Login
@@ -186,7 +294,9 @@ function LandingPage() {
                     <section className="module-preview-section">
                         <div className="glass-card module-preview-card">
                             <div>
-                                <h2 className="section-title mb-2">System activity is now connected</h2>
+                                <h2 className="section-title mb-2">
+                                    System activity is now connected
+                                </h2>
                                 <p className="module-preview-text">
                                     Resources, bookings, tickets, and notifications are already
                                     integrated into a single workflow-driven system foundation.
@@ -229,26 +339,20 @@ function LandingPage() {
                     </div>
                 </footer>
 
-                {showLoginPrompt && (
+                {showLoginRequiredModal && (
                     <div className="custom-modal-overlay">
-                        <div className="glass-card custom-modal-card auth-required-card">
-                            <span className="landing-badge auth-required-badge">
-                                Login required
-                            </span>
-
-                            <h3 className="custom-modal-title">
-                                Sign in to continue
-                            </h3>
+                        <div className="glass-card custom-modal-card">
+                            <h3 className="custom-modal-title">Login Required</h3>
 
                             <p className="custom-modal-text">
-                                You need to log in or create an account before creating
-                                resources, bookings, or tickets.
+                                You must log in or create an account before creating resources,
+                                bookings, or tickets.
                             </p>
 
-                            <div className="custom-modal-actions auth-required-actions">
+                            <div className="custom-modal-actions">
                                 <button
                                     className="btn btn-secondary"
-                                    onClick={closeLoginPrompt}
+                                    onClick={closeLoginRequiredModal}
                                 >
                                     Stay on Landing
                                 </button>
@@ -256,10 +360,38 @@ function LandingPage() {
                                 <Link
                                     to="/login"
                                     className="btn btn-primary link-btn"
-                                    state={{ from: location.state?.requestedPath || '/' }}
+                                    onClick={closeLoginRequiredModal}
                                 >
                                     Login / Sign up
                                 </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showLogoutModal && (
+                    <div className="custom-modal-overlay">
+                        <div className="glass-card custom-modal-card">
+                            <h3 className="custom-modal-title">Confirm Logout</h3>
+
+                            <p className="custom-modal-text">
+                                Are you sure you want to log out of your account?
+                            </p>
+
+                            <div className="custom-modal-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={cancelLogout}
+                                >
+                                    Stay Logged In
+                                </button>
+
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={confirmLogout}
+                                >
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     </div>

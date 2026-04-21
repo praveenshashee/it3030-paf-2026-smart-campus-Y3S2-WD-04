@@ -1385,3 +1385,121 @@ body {
     align-items: flex-start;
   }
 }
+
+.profile-menu-wrapper {
+  position: relative;
+}
+
+.profile-menu-trigger {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-menu-avatar-image,
+.profile-menu-avatar-fallback {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-menu-avatar-image {
+  border: 2px solid rgba(31, 59, 99, 0.12);
+}
+
+.profile-menu-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 59, 99, 0.1);
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 2px solid rgba(31, 59, 99, 0.08);
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 260px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+  z-index: 250;
+}
+
+.profile-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-dropdown-avatar-image,
+.profile-dropdown-avatar-fallback {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-dropdown-avatar-image {
+  border: 2px solid rgba(31, 59, 99, 0.12);
+}
+
+.profile-dropdown-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 59, 99, 0.1);
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid rgba(31, 59, 99, 0.08);
+}
+
+.profile-dropdown-user-info {
+  min-width: 0;
+}
+
+.profile-dropdown-name {
+  display: block;
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.profile-dropdown-role {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.profile-dropdown-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-auth-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
