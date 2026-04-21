@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import PageTransition from '../components/PageTransition';
 import { useAuth } from '../context/AuthContext';
+import heroImage from '../assets/hero.png';
 
 function LandingPage() {
     const location = useLocation();
@@ -217,6 +218,13 @@ function LandingPage() {
                         </div>
 
                         <div className="landing-hero-visual glass-card">
+                            <img
+                                src={heroImage}
+                                alt=""
+                                className="landing-hero-art"
+                                aria-hidden="true"
+                            />
+
                             <div className="landing-visual-chip">Campus Operations</div>
                             <h3>Built for smoother university workflows</h3>
                             <p>
