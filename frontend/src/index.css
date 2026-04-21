@@ -814,3 +814,36 @@ body {
   justify-content: center;
   box-shadow: var(--shadow-sm);
 }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.summary-card {
+  padding: 20px;
+}
+
+.summary-label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  display: block;
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

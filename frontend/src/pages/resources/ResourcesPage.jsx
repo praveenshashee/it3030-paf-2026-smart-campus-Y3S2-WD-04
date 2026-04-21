@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { deleteResource, getAllResources } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { deleteResource, getAllResources } from '../../services/resourceService';
 
 function ResourcesPage() {
     const [resources, setResources] = useState([]);
@@ -49,17 +49,46 @@ function ResourcesPage() {
     };
 
     const getStatusClass = (status) => {
-        return status === 'ACTIVE' ? 'status-badge status-active' : 'status-badge status-out';
+        return status === 'ACTIVE'
+            ? 'status-badge status-active'
+            : 'status-badge status-out';
     };
+
+    // Small page summary values for quick overview.
+    const totalResources = resources.length;
+    const activeResources = resources.filter(
+        (resource) => resource.status === 'ACTIVE'
+    ).length;
+    const outOfServiceResources = resources.filter(
+        (resource) => resource.status === 'OUT_OF_SERVICE'
+    ).length;
 
     return (
         <PageTransition>
             <>
                 <AppNavbar />
+
                 <div className="page-shell">
                     <div className="page-header">
                         <h1>Resources</h1>
                         <p>Manage campus facilities and assets in one place.</p>
+                    </div>
+
+                    <div className="summary-grid">
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Total Resources</span>
+                            <strong className="summary-value">{totalResources}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Active Resources</span>
+                            <strong className="summary-value">{activeResources}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Out of Service</span>
+                            <strong className="summary-value">{outOfServiceResources}</strong>
+                        </div>
                     </div>
 
                     <div className="top-actions">
@@ -68,7 +97,10 @@ function ResourcesPage() {
                         </Link>
                     </div>
 
-                    {successMessage && <div className="alert alert-success">{successMessage}</div>}
+                    {successMessage && (
+                        <div className="alert alert-success">{successMessage}</div>
+                    )}
+
                     {loading && <p>Loading resources...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
