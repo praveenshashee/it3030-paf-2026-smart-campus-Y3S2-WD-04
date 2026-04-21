@@ -316,8 +316,18 @@ function TicketsPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="9" className="empty-state">
-                                                    No tickets match the current filters.
+                                                <td colSpan="9">
+                                                    <div className="empty-state-card">
+                                                        <h3 className="empty-state-title">No tickets found</h3>
+                                                        <p className="empty-state-text">
+                                                            No tickets match the current search or filter settings.
+                                                        </p>
+                                                        <div className="empty-state-actions">
+                                                            <Link to="/tickets/create" className="btn btn-primary link-btn">
+                                                                Create Ticket
+                                                            </Link>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
@@ -400,12 +410,12 @@ function TicketsPage() {
 
                                 <button
                                     className={`btn ${isRejectAction
-                                            ? 'btn-danger'
-                                            : isResolveAction
-                                                ? 'btn-success'
-                                                : isCloseAction
-                                                    ? 'btn-secondary'
-                                                    : 'btn-info'
+                                        ? 'btn-danger'
+                                        : isResolveAction
+                                            ? 'btn-success'
+                                            : isCloseAction
+                                                ? 'btn-secondary'
+                                                : 'btn-info'
                                         }`}
                                     onClick={handleStatusUpdate}
                                 >

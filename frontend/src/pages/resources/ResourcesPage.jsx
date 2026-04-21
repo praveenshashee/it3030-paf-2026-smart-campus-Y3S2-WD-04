@@ -223,8 +223,18 @@ function ResourcesPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="7" className="empty-state">
-                                                    No resources match the current filters.
+                                                <td colSpan="7">
+                                                    <div className="empty-state-card">
+                                                        <h3 className="empty-state-title">No resources found</h3>
+                                                        <p className="empty-state-text">
+                                                            No resources match the current search or filter settings.
+                                                        </p>
+                                                        <div className="empty-state-actions">
+                                                            <Link to="/resources/create" className="btn btn-primary link-btn">
+                                                                Create Resource
+                                                            </Link>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}

@@ -109,8 +109,11 @@ function NotificationsPage() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="glass-card notification-card">
-                                    <p className="empty-state mb-0">No notifications found.</p>
+                                <div className="glass-card notification-card empty-state-card">
+                                    <h3 className="empty-state-title">No notifications yet</h3>
+                                    <p className="empty-state-text mb-0">
+                                        Booking and ticket activity will appear here once actions are performed.
+                                    </p>
                                 </div>
                             )}
                         </div>

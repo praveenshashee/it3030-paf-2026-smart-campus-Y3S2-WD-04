@@ -286,8 +286,18 @@ function BookingsPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="10" className="empty-state">
-                                                    No bookings match the current filters.
+                                                <td colSpan="10">
+                                                    <div className="empty-state-card">
+                                                        <h3 className="empty-state-title">No bookings found</h3>
+                                                        <p className="empty-state-text">
+                                                            No bookings match the current search or filter settings.
+                                                        </p>
+                                                        <div className="empty-state-actions">
+                                                            <Link to="/bookings/create" className="btn btn-primary link-btn">
+                                                                Create Booking
+                                                            </Link>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
