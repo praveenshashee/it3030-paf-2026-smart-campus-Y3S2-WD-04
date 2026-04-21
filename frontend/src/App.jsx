@@ -5,6 +5,8 @@ import CreateResourcePage from './pages/resources/CreateResourcePage';
 import EditResourcePage from './pages/resources/EditResourcePage';
 import BookingsPage from './pages/bookings/BookingsPage';
 import CreateBookingPage from './pages/bookings/CreateBookingPage';
+import TicketsPage from './pages/tickets/TicketsPage';
+import CreateTicketPage from './pages/tickets/CreateTicketPage';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Route path="/resources/edit/:id" element={<EditResourcePage />} />
       <Route path="/bookings" element={<BookingsPage />} />
       <Route path="/bookings/create" element={<CreateBookingPage />} />
+      <Route path="/tickets" element={<TicketsPage />} />
+      <Route path="/tickets/create" element={<CreateTicketPage />} />
     </Routes>
   );
 }

@@ -27,7 +27,14 @@ function AppNavbar() {
                         Bookings
                     </NavLink>
 
-                    <span className="app-nav-link app-nav-link-disabled">Tickets</span>
+                    <NavLink
+                        to="/tickets"
+                        className={({ isActive }) =>
+                            `app-nav-link ${isActive ? 'active' : ''}`
+                        }
+                    >
+                        Tickets
+                    </NavLink>
                 </div>
             </div>
         </div>
