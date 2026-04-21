@@ -95,6 +95,15 @@ function BookingsPage() {
     const canReject = (status) => status === 'PENDING';
     const canCancel = (status) => status === 'PENDING' || status === 'APPROVED';
 
+    // Quick summary values for the top cards.
+    const totalBookings = bookings.length;
+    const pendingBookings = bookings.filter(
+        (booking) => booking.status === 'PENDING'
+    ).length;
+    const approvedBookings = bookings.filter(
+        (booking) => booking.status === 'APPROVED'
+    ).length;
+
     return (
         <PageTransition>
             <>
@@ -104,6 +113,23 @@ function BookingsPage() {
                     <div className="page-header">
                         <h1>Bookings</h1>
                         <p>Manage booking requests for campus resources.</p>
+                    </div>
+
+                    <div className="summary-grid">
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Total Bookings</span>
+                            <strong className="summary-value">{totalBookings}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Pending</span>
+                            <strong className="summary-value">{pendingBookings}</strong>
+                        </div>
+
+                        <div className="glass-card summary-card">
+                            <span className="summary-label">Approved</span>
+                            <strong className="summary-value">{approvedBookings}</strong>
+                        </div>
                     </div>
 
                     <div className="top-actions">
