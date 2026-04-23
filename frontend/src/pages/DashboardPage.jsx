@@ -118,6 +118,64 @@ function DashboardPage() {
         (ticket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
     ).slice(0, 4);
 
+    const buildBreakdown = (items, labels, getValue) => {
+        return labels.map((label) => {
+            const count = items.filter((item) => getValue(item) === label).length;
+            const percentage = items.length > 0 ? Math.round((count / items.length) * 100) : 0;
+
+            return { label, count, percentage };
+        });
+    };
+
+    const analyticsSections = useMemo(() => {
+        if (user?.role === 'ADMIN') {
+            return [
+                {
+                    title: 'Resource Status',
+                    items: buildBreakdown(resources, ['ACTIVE', 'OUT_OF_SERVICE'], (resource) => resource.status),
+                },
+                {
+                    title: 'Booking Pipeline',
+                    items: buildBreakdown(bookings, ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'], (booking) => booking.status),
+                },
+                {
+                    title: 'Ticket Workflow',
+                    items: buildBreakdown(tickets, ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'], (ticket) => ticket.status),
+                },
+            ];
+        }
+
+        if (user?.role === 'TECHNICIAN') {
+            return [
+                {
+                    title: 'Assigned Ticket Status',
+                    items: buildBreakdown(tickets, ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'], (ticket) => ticket.status),
+                },
+                {
+                    title: 'Ticket Priority',
+                    items: buildBreakdown(tickets, ['LOW', 'MEDIUM', 'HIGH'], (ticket) => ticket.priority),
+                },
+            ];
+        }
+
+        return [
+            {
+                title: 'My Booking Status',
+                items: buildBreakdown(bookings, ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'], (booking) => booking.status),
+            },
+            {
+                title: 'My Ticket Status',
+                items: buildBreakdown(tickets, ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'], (ticket) => ticket.status),
+            },
+        ];
+    }, [bookings, resources, tickets, user]);
+
+    const getNotificationTarget = (type) => {
+        if (type === 'BOOKING') return '/bookings';
+        if (type === 'TICKET') return '/tickets';
+        return '/notifications';
+    };
+
     const roleTitle = {
         ADMIN: 'Admin Dashboard',
         TECHNICIAN: 'Technician Dashboard',
@@ -173,6 +231,34 @@ function DashboardPage() {
                                         <span className="summary-label">{item.label}</span>
                                         <strong className="summary-value">{item.value}</strong>
                                     </Link>
+                                ))}
+                            </div>
+
+                            <div className="dashboard-analytics-grid">
+                                {analyticsSections.map((section) => (
+                                    <section key={section.title} className="glass-card dashboard-analytics-card">
+                                        <div className="dashboard-panel-header">
+                                            <h2>{section.title}</h2>
+                                        </div>
+
+                                        <div className="dashboard-analytics-list">
+                                            {section.items.map((item) => (
+                                                <div key={item.label} className="dashboard-analytics-row">
+                                                    <div className="dashboard-analytics-meta">
+                                                        <span>{item.label.replaceAll('_', ' ')}</span>
+                                                        <strong>{item.count}</strong>
+                                                    </div>
+
+                                                    <div className="dashboard-analytics-track">
+                                                        <span
+                                                            className="dashboard-analytics-fill"
+                                                            style={{ width: `${item.percentage}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
                                 ))}
                             </div>
 
@@ -244,7 +330,11 @@ function DashboardPage() {
                                     {latestNotifications.length > 0 ? (
                                         <div className="dashboard-list">
                                             {latestNotifications.map((notification) => (
-                                                <div key={notification.id} className="dashboard-list-item">
+                                                <Link
+                                                    key={notification.id}
+                                                    to={getNotificationTarget(notification.type)}
+                                                    className="dashboard-list-item dashboard-list-link"
+                                                >
                                                     <div>
                                                         <strong>{notification.title}</strong>
                                                         <span>{notification.message}</span>
@@ -252,7 +342,7 @@ function DashboardPage() {
                                                     {!notification.isRead && (
                                                         <span className="notification-unread-dot">Unread</span>
                                                     )}
-                                                </div>
+                                                </Link>
                                             ))}
                                         </div>
                                     ) : (

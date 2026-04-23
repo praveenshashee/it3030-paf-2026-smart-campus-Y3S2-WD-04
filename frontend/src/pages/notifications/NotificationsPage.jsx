@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { formatDateTime } from '../../utils/formatters';
@@ -64,6 +65,18 @@ function NotificationsPage() {
         if (type === 'BOOKING') return 'notification-type-badge notification-booking';
         if (type === 'TICKET') return 'notification-type-badge notification-ticket';
         return 'notification-type-badge notification-general';
+    };
+
+    const getNotificationTarget = (type) => {
+        if (type === 'BOOKING') {
+            return { to: '/bookings', label: 'Open Bookings' };
+        }
+
+        if (type === 'TICKET') {
+            return { to: '/tickets', label: 'Open Tickets' };
+        }
+
+        return { to: '/dashboard', label: 'Open Dashboard' };
     };
 
     const unreadCount = notifications.filter(
@@ -173,14 +186,23 @@ function NotificationsPage() {
                                                 {formatDateTime(notification.createdAt)}
                                             </span>
 
-                                            {!notification.isRead && (
-                                                <button
-                                                    className="btn btn-sm btn-primary"
-                                                    onClick={() => handleMarkAsRead(notification.id)}
+                                            <div className="notification-actions">
+                                                <Link
+                                                    to={getNotificationTarget(notification.type).to}
+                                                    className="btn btn-sm btn-secondary link-btn"
                                                 >
-                                                    Mark as Read
-                                                </button>
-                                            )}
+                                                    {getNotificationTarget(notification.type).label}
+                                                </Link>
+
+                                                {!notification.isRead && (
+                                                    <button
+                                                        className="btn btn-sm btn-primary"
+                                                        onClick={() => handleMarkAsRead(notification.id)}
+                                                    >
+                                                        Mark as Read
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))
