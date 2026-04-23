@@ -19,6 +19,14 @@ public class Ticket {
     @JoinColumn(name = "resource_id")
     private Resource resource;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id")
+    private User createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "assigned_technician_user_id")
+    private User assignedTechnician;
+
     private String locationText;
 
     private String category;
@@ -52,6 +60,14 @@ public class Ticket {
 
     public Resource getResource() {
         return resource;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public User getAssignedTechnician() {
+        return assignedTechnician;
     }
 
     public String getLocationText() {
@@ -100,6 +116,14 @@ public class Ticket {
 
     public void setResource(Resource resource) {
         this.resource = resource;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setAssignedTechnician(User assignedTechnician) {
+        this.assignedTechnician = assignedTechnician;
     }
 
     public void setLocationText(String locationText) {

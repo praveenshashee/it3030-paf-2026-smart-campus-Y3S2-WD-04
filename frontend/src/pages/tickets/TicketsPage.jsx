@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getAllTickets, updateTicketStatus } from '../../services/ticketService';
+import { getTechnicians } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 
 function TicketsPage() {
@@ -12,6 +13,7 @@ function TicketsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [technicians, setTechnicians] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
@@ -21,6 +23,7 @@ function TicketsPage() {
         open: false,
         ticket: null,
         action: '',
+        assignedTechnicianId: '',
         assignedTechnicianName: '',
         resolutionNotes: '',
         rejectionReason: '',
@@ -31,6 +34,12 @@ function TicketsPage() {
     useEffect(() => {
         fetchTickets();
     }, []);
+
+    useEffect(() => {
+        if (user?.role === 'ADMIN') {
+            fetchTechnicians();
+        }
+    }, [user]);
 
     const fetchTickets = async () => {
         try {
@@ -45,11 +54,21 @@ function TicketsPage() {
         }
     };
 
+    const fetchTechnicians = async () => {
+        try {
+            const response = await getTechnicians();
+            setTechnicians(response.data);
+        } catch (err) {
+            console.error('Failed to load technicians.', err);
+        }
+    };
+
     const openTicketActionModal = (ticket, action) => {
         setTicketActionModal({
             open: true,
             ticket,
             action,
+            assignedTechnicianId: ticket.assignedTechnicianId || '',
             assignedTechnicianName: ticket.assignedTechnicianName || '',
             resolutionNotes: '',
             rejectionReason: '',
@@ -61,6 +80,7 @@ function TicketsPage() {
             open: false,
             ticket: null,
             action: '',
+            assignedTechnicianId: '',
             assignedTechnicianName: '',
             resolutionNotes: '',
             rejectionReason: '',
@@ -71,6 +91,7 @@ function TicketsPage() {
         const {
             ticket,
             action,
+            assignedTechnicianId,
             assignedTechnicianName,
             resolutionNotes,
             rejectionReason,
@@ -97,6 +118,7 @@ function TicketsPage() {
         try {
             await updateTicketStatus(ticket.id, {
                 status,
+                assignedTechnicianId: assignedTechnicianId || null,
                 assignedTechnicianName,
                 resolutionNotes,
                 rejectionReason,
@@ -364,19 +386,30 @@ function TicketsPage() {
                                 {isRejectAction && 'Please provide a rejection reason before rejecting this ticket.'}
                             </p>
 
-                            {isStartAction && (
-                                <input
-                                    type="text"
-                                    className="form-control modal-input"
-                                    placeholder="Enter technician name (optional)"
-                                    value={ticketActionModal.assignedTechnicianName}
-                                    onChange={(event) =>
+                            {isStartAction && user?.role === 'ADMIN' && (
+                                <select
+                                    className="form-select modal-input"
+                                    value={ticketActionModal.assignedTechnicianId}
+                                    onChange={(event) => {
+                                        const technicianId = event.target.value;
+                                        const technician = technicians.find(
+                                            (item) => String(item.id) === technicianId
+                                        );
+
                                         setTicketActionModal((previous) => ({
                                             ...previous,
-                                            assignedTechnicianName: event.target.value,
-                                        }))
-                                    }
-                                />
+                                            assignedTechnicianId: technicianId,
+                                            assignedTechnicianName: technician?.fullName || technician?.email || '',
+                                        }));
+                                    }}
+                                >
+                                    <option value="">Assign technician</option>
+                                    {technicians.map((technician) => (
+                                        <option key={technician.id} value={technician.id}>
+                                            {technician.fullName || technician.email}
+                                        </option>
+                                    ))}
+                                </select>
                             )}
 
                             {(isResolveAction || isCloseAction) && (
