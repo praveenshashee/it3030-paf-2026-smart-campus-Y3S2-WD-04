@@ -4,6 +4,7 @@ import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { createBooking } from '../../services/bookingService';
 import { getAllResources } from '../../services/resourceService';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function CreateBookingPage() {
     const navigate = useNavigate();
@@ -47,6 +48,14 @@ function CreateBookingPage() {
         }));
     };
 
+    const selectedResource = resources.find(
+        (resource) => String(resource.id) === String(formData.resourceId)
+    );
+
+    const formatTime = (time) => {
+        return time ? time.slice(0, 5) : '-';
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -64,7 +73,10 @@ function CreateBookingPage() {
             navigate('/bookings');
         } catch (err) {
             setError(
-                'Failed to create booking. Check for overlapping times or invalid input.'
+                getApiErrorMessage(
+                    err,
+                    'Failed to create booking. Check for overlapping times or invalid input.'
+                )
             );
             console.error(err);
         }
@@ -124,6 +136,14 @@ function CreateBookingPage() {
                                             onChange={handleChange}
                                         />
                                     </div>
+
+                                    {selectedResource && (
+                                        <div className="col-12">
+                                            <div className="alert alert-info mb-0">
+                                                Available from {formatTime(selectedResource.availableFromTime)} to {formatTime(selectedResource.availableToTime)}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="col-md-6">
                                         <label className="form-label">Start Time</label>

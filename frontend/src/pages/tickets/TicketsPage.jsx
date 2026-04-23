@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getAllTickets, updateTicketStatus } from '../../services/ticketService';
+import { getTechnicians } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function TicketsPage() {
-    const { user } = useAuth();
+    const { user, authLoading } = useAuth();
 
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [technicians, setTechnicians] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
@@ -21,6 +24,7 @@ function TicketsPage() {
         open: false,
         ticket: null,
         action: '',
+        assignedTechnicianId: '',
         assignedTechnicianName: '',
         resolutionNotes: '',
         rejectionReason: '',
@@ -29,8 +33,25 @@ function TicketsPage() {
     const canManageTickets = user?.role === 'ADMIN' || user?.role === 'TECHNICIAN';
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
+        if (!user) {
+            setTickets([]);
+            setLoading(false);
+            setError('');
+            return;
+        }
+
         fetchTickets();
-    }, []);
+    }, [authLoading, user]);
+
+    useEffect(() => {
+        if (user?.role === 'ADMIN') {
+            fetchTechnicians();
+        }
+    }, [user]);
 
     const fetchTickets = async () => {
         try {
@@ -45,11 +66,21 @@ function TicketsPage() {
         }
     };
 
+    const fetchTechnicians = async () => {
+        try {
+            const response = await getTechnicians();
+            setTechnicians(response.data);
+        } catch (err) {
+            console.error('Failed to load technicians.', err);
+        }
+    };
+
     const openTicketActionModal = (ticket, action) => {
         setTicketActionModal({
             open: true,
             ticket,
             action,
+            assignedTechnicianId: ticket.assignedTechnicianId || '',
             assignedTechnicianName: ticket.assignedTechnicianName || '',
             resolutionNotes: '',
             rejectionReason: '',
@@ -61,6 +92,7 @@ function TicketsPage() {
             open: false,
             ticket: null,
             action: '',
+            assignedTechnicianId: '',
             assignedTechnicianName: '',
             resolutionNotes: '',
             rejectionReason: '',
@@ -71,6 +103,7 @@ function TicketsPage() {
         const {
             ticket,
             action,
+            assignedTechnicianId,
             assignedTechnicianName,
             resolutionNotes,
             rejectionReason,
@@ -97,6 +130,7 @@ function TicketsPage() {
         try {
             await updateTicketStatus(ticket.id, {
                 status,
+                assignedTechnicianId: assignedTechnicianId || null,
                 assignedTechnicianName,
                 resolutionNotes,
                 rejectionReason,
@@ -108,7 +142,7 @@ function TicketsPage() {
             fetchTickets();
         } catch (err) {
             setSuccessMessage('');
-            setError('Failed to update ticket status.');
+            setError(getApiErrorMessage(err, 'Failed to update ticket status.'));
             console.error(err);
         }
     };
@@ -242,10 +276,10 @@ function TicketsPage() {
                         <div className="alert alert-success">{successMessage}</div>
                     )}
 
-                    {loading && <p>Loading tickets...</p>}
+                    {(authLoading || loading) && <p>Loading tickets...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
-                    {!loading && !error && (
+                    {!authLoading && !loading && !error && (
                         <div className="glass-card table-card">
                             <div className="table-responsive">
                                 <table className="table custom-table">
@@ -364,19 +398,30 @@ function TicketsPage() {
                                 {isRejectAction && 'Please provide a rejection reason before rejecting this ticket.'}
                             </p>
 
-                            {isStartAction && (
-                                <input
-                                    type="text"
-                                    className="form-control modal-input"
-                                    placeholder="Enter technician name (optional)"
-                                    value={ticketActionModal.assignedTechnicianName}
-                                    onChange={(event) =>
+                            {isStartAction && user?.role === 'ADMIN' && (
+                                <select
+                                    className="form-select modal-input"
+                                    value={ticketActionModal.assignedTechnicianId}
+                                    onChange={(event) => {
+                                        const technicianId = event.target.value;
+                                        const technician = technicians.find(
+                                            (item) => String(item.id) === technicianId
+                                        );
+
                                         setTicketActionModal((previous) => ({
                                             ...previous,
-                                            assignedTechnicianName: event.target.value,
-                                        }))
-                                    }
-                                />
+                                            assignedTechnicianId: technicianId,
+                                            assignedTechnicianName: technician?.fullName || technician?.email || '',
+                                        }));
+                                    }}
+                                >
+                                    <option value="">Assign technician</option>
+                                    {technicians.map((technician) => (
+                                        <option key={technician.id} value={technician.id}>
+                                            {technician.fullName || technician.email}
+                                        </option>
+                                    ))}
+                                </select>
                             )}
 
                             {(isResolveAction || isCloseAction) && (

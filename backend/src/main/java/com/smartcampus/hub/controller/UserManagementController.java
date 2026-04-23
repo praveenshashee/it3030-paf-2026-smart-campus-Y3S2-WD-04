@@ -35,6 +35,21 @@ public class UserManagementController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/technicians")
+    public ResponseEntity<List<AuthUserResponseDto>> getTechnicians() {
+        List<AuthUserResponseDto> technicians = userRepository.findByRole(Role.TECHNICIAN)
+                .stream()
+                .map(user -> new AuthUserResponseDto(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getFullName(),
+                        user.getProfileImageUrl(),
+                        user.getRole()))
+                .toList();
+
+        return ResponseEntity.ok(technicians);
+    }
+
     @PutMapping("/{id}/role")
     public ResponseEntity<AuthUserResponseDto> updateUserRole(
             @PathVariable Long id,

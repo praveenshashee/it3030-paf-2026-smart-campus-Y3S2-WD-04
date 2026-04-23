@@ -4,6 +4,8 @@ import ResourceForm from '../../components/resources/ResourceForm';
 import { getResourceById, updateResource } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { isEndTimeAfterStartTime } from '../../utils/timeValidation';
 
 function EditResourcePage() {
     const { id } = useParams();
@@ -14,6 +16,8 @@ function EditResourcePage() {
         type: 'LECTURE_HALL',
         capacity: '',
         location: '',
+        availableFromTime: '08:00',
+        availableToTime: '18:00',
         status: 'ACTIVE',
     });
 
@@ -34,6 +38,8 @@ function EditResourcePage() {
                 type: resource.type,
                 capacity: resource.capacity,
                 location: resource.location,
+                availableFromTime: resource.availableFromTime?.slice(0, 5) || '08:00',
+                availableToTime: resource.availableToTime?.slice(0, 5) || '18:00',
                 status: resource.status,
             });
 
@@ -58,6 +64,11 @@ function EditResourcePage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!isEndTimeAfterStartTime(formData.availableFromTime, formData.availableToTime)) {
+            setError('Resource available-to time must be after available-from time.');
+            return;
+        }
+
         try {
             await updateResource(id, {
                 ...formData,
@@ -67,7 +78,7 @@ function EditResourcePage() {
             setError('');
             navigate('/resources');
         } catch (err) {
-            setError('Failed to update resource.');
+            setError(getApiErrorMessage(err, 'Failed to update resource.'));
             console.error(err);
         }
     };

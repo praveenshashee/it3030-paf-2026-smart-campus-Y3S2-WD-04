@@ -1,8 +1,11 @@
 import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import PageTransition from '../components/PageTransition';
 import { useAuth } from '../context/AuthContext';
 
 function LoginPage() {
+    const [slide, setSlide] = useState(0);
+
     const {
         user,
         authLoading,
@@ -11,6 +14,29 @@ function LoginPage() {
         loginAsDevAdmin,
         loginAsDevTechnician,
     } = useAuth();
+
+    const slides = [
+        {
+            title: 'Smart Campus Operations Hub',
+            description: 'Manage campus resources, approvals, maintenance work, and alerts from one connected system.',
+        },
+        {
+            title: 'Book Facilities & Assets',
+            description: 'Reserve lecture halls, labs, meeting rooms, and equipment with workflow-aware approvals.',
+        },
+        {
+            title: 'Track Incidents Clearly',
+            description: 'Report issues, assign technicians, follow progress, and keep every update visible.',
+        },
+    ];
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSlide((currentSlide) => (currentSlide + 1) % slides.length);
+        }, 4200);
+
+        return () => clearInterval(timer);
+    }, [slides.length]);
 
     if (authLoading) {
         return <p className="auth-loading-text">Checking session...</p>;
@@ -23,34 +49,91 @@ function LoginPage() {
     return (
         <PageTransition>
             <div className="auth-page-shell">
-                <div className="glass-card auth-card">
-                    <span className="landing-badge">OAuth 2.0 Login</span>
+                <div className="auth-card">
+                    <section className="auth-visual-panel">
+                        <div className="auth-visual-grid" />
 
-                    <h1 className="auth-title">Sign in to Smart Campus Hub</h1>
+                        <div className="auth-campus-mark">
+                            <span>SC</span>
+                        </div>
 
-                    <p className="auth-subtitle">
-                        Continue with your Google account or use temporary demo roles for development testing.
-                    </p>
+                        <div className="auth-feature-row">
+                            <div className="auth-feature-pill">
+                                <strong>Book</strong>
+                                <span>Facilities</span>
+                            </div>
+                            <div className="auth-feature-pill">
+                                <strong>Track</strong>
+                                <span>Tickets</span>
+                            </div>
+                            <div className="auth-feature-pill">
+                                <strong>Notify</strong>
+                                <span>Teams</span>
+                            </div>
+                        </div>
 
-                    <div className="auth-action-stack">
-                        <button className="btn btn-primary auth-google-btn" onClick={loginWithGoogle}>
-                            Continue with Google
-                        </button>
+                        <div className="auth-slide-panel" key={slide}>
+                            <h2>{slides[slide].title}</h2>
+                            <p>{slides[slide].description}</p>
 
-                        <div className="auth-divider">Temporary development access</div>
+                            <div className="auth-slide-dots">
+                                {slides.map((item, index) => (
+                                    <button
+                                        key={item.title}
+                                        type="button"
+                                        className={`auth-slide-dot ${index === slide ? 'active' : ''}`}
+                                        aria-label={`Show ${item.title}`}
+                                        onClick={() => setSlide(index)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </section>
 
-                        <button className="btn btn-secondary" onClick={loginAsDevUser}>
-                            Sign in as Demo User
-                        </button>
+                    <section className="auth-form-panel">
+                        <div className="auth-brand-row">
+                            <div className="auth-brand-icon">SC</div>
+                            <div>
+                                <strong>Smart Campus</strong>
+                                <span>Operations Hub</span>
+                            </div>
+                        </div>
 
-                        <button className="btn btn-secondary" onClick={loginAsDevAdmin}>
-                            Sign in as Demo Admin
-                        </button>
+                        <span className="auth-eyebrow">OAuth 2.0 Login</span>
+                        <h1 className="auth-title">Welcome Back</h1>
 
-                        <button className="btn btn-secondary" onClick={loginAsDevTechnician}>
-                            Sign in as Demo Technician
-                        </button>
-                    </div>
+                        <p className="auth-subtitle">
+                            Sign in to continue managing resources, bookings, tickets, and notifications.
+                        </p>
+
+                        <div className="auth-action-stack">
+                            <button className="auth-login-btn auth-google-btn" onClick={loginWithGoogle}>
+                                <span className="auth-google-icon" aria-hidden="true">G</span>
+                                Continue with Google
+                            </button>
+
+                            <div className="auth-divider">
+                                <span>Temporary development access</span>
+                            </div>
+
+                            <button className="auth-login-btn auth-demo-primary" onClick={loginAsDevAdmin}>
+                                Sign in as Demo Admin
+                            </button>
+
+                            <button className="auth-login-btn auth-demo-secondary" onClick={loginAsDevUser}>
+                                Sign in as Demo User
+                            </button>
+
+                            <button className="auth-login-btn auth-demo-secondary" onClick={loginAsDevTechnician}>
+                                Sign in as Demo Technician
+                            </button>
+                        </div>
+
+                        <div className="auth-note">
+                            <strong>Role-aware access</strong>
+                            <span>Admin, user, and technician sessions open different permissions and workflows.</span>
+                        </div>
+                    </section>
                 </div>
             </div>
         </PageTransition>

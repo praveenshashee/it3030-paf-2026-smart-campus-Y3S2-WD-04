@@ -13,12 +13,22 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import ProfilePage from './pages/ProfilePage';
 import AdminUsersPage from './pages/AdminUsersPage';
+import DashboardPage from './pages/DashboardPage';
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/resources" element={<ResourcesPage />} />
       <Route
@@ -38,7 +48,14 @@ function App() {
         }
       />
 
-      <Route path="/bookings" element={<BookingsPage />} />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            <BookingsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/bookings/create"
         element={
@@ -48,7 +65,14 @@ function App() {
         }
       />
 
-      <Route path="/tickets" element={<TicketsPage />} />
+      <Route
+        path="/tickets"
+        element={
+          <ProtectedRoute>
+            <TicketsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/tickets/create"
         element={
@@ -58,7 +82,14 @@ function App() {
         }
       />
 
-      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/profile"

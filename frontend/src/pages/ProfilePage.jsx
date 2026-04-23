@@ -37,7 +37,7 @@ function ProfilePage() {
                             </Link>
                         </div>
 
-                        <div className="glass-card profile-card">
+                        <div className="profile-hero">
                             <div className="profile-top">
                                 <div className="profile-avatar-wrap">
                                     {user?.profileImageUrl ? (
@@ -65,7 +65,9 @@ function ProfilePage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <div className="glass-card profile-card">
                             <div className="profile-details-grid">
                                 <div className="profile-detail-item">
                                     <span className="profile-detail-label">Full Name</span>

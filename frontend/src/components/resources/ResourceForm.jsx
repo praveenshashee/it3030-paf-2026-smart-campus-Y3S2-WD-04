@@ -76,6 +76,28 @@ function ResourceForm({
                         </select>
                     </div>
 
+                    <div className="col-md-6">
+                        <label className="form-label">Available From</label>
+                        <input
+                            type="time"
+                            name="availableFromTime"
+                            className="form-control"
+                            value={formData.availableFromTime}
+                            onChange={onChange}
+                        />
+                    </div>
+
+                    <div className="col-md-6">
+                        <label className="form-label">Available To</label>
+                        <input
+                            type="time"
+                            name="availableToTime"
+                            className="form-control"
+                            value={formData.availableToTime}
+                            onChange={onChange}
+                        />
+                    </div>
+
                     <div className="col-12 action-group">
                         <button type="submit" className="btn btn-primary">
                             {submitLabel}

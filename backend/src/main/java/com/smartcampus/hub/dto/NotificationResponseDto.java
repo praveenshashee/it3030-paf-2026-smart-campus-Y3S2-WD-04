@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 public class NotificationResponseDto {
 
     private Long id;
+    private Long recipientUserId;
+    private String recipientName;
     private NotificationType type;
     private String title;
     private String message;
@@ -15,12 +17,16 @@ public class NotificationResponseDto {
 
     public NotificationResponseDto(
             Long id,
+            Long recipientUserId,
+            String recipientName,
             NotificationType type,
             String title,
             String message,
             Boolean isRead,
             LocalDateTime createdAt) {
         this.id = id;
+        this.recipientUserId = recipientUserId;
+        this.recipientName = recipientName;
         this.type = type;
         this.title = title;
         this.message = message;
@@ -30,6 +36,14 @@ public class NotificationResponseDto {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getRecipientUserId() {
+        return recipientUserId;
+    }
+
+    public String getRecipientName() {
+        return recipientName;
     }
 
     public NotificationType getType() {

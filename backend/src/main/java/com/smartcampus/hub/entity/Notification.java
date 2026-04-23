@@ -16,6 +16,10 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @ManyToOne
+    @JoinColumn(name = "recipient_user_id")
+    private User recipient;
+
     private String title;
 
     @Column(length = 1000)
@@ -34,6 +38,10 @@ public class Notification {
 
     public NotificationType getType() {
         return type;
+    }
+
+    public User getRecipient() {
+        return recipient;
     }
 
     public String getTitle() {
@@ -58,6 +66,10 @@ public class Notification {
 
     public void setType(NotificationType type) {
         this.type = type;
+    }
+
+    public void setRecipient(User recipient) {
+        this.recipient = recipient;
     }
 
     public void setTitle(String title) {

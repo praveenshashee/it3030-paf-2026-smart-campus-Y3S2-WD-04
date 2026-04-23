@@ -12,8 +12,13 @@ function AppNavbar() {
     const profileMenuRef = useRef(null);
 
     useEffect(() => {
+        if (!user) {
+            setUnreadCount(0);
+            return;
+        }
+
         fetchUnreadNotifications();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -107,22 +112,24 @@ function AppNavbar() {
                             Tickets
                         </NavLink>
 
-                        <NavLink
-                            to="/notifications"
-                            className={({ isActive }) =>
-                                `notification-bell-btn ${isActive ? 'active' : ''}`
-                            }
-                            aria-label="Notifications"
-                            title="Notifications"
-                        >
-                            <span className="notification-bell-icon">🔔</span>
+                        {user && (
+                            <NavLink
+                                to="/notifications"
+                                className={({ isActive }) =>
+                                    `notification-bell-btn ${isActive ? 'active' : ''}`
+                                }
+                                aria-label="Notifications"
+                                title="Notifications"
+                            >
+                                <span className="notification-bell-icon">🔔</span>
 
-                            {unreadCount > 0 && (
-                                <span className="notification-badge">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
-                        </NavLink>
+                                {unreadCount > 0 && (
+                                    <span className="notification-badge">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </NavLink>
+                        )}
                     </div>
 
                     <div className="navbar-auth-section">
@@ -172,11 +179,19 @@ function AppNavbar() {
 
                                         <div className="profile-dropdown-actions">
                                             <Link
-                                                to="/profile"
+                                                to="/dashboard"
                                                 className="btn btn-primary btn-sm link-btn w-100"
                                                 onClick={() => setProfileMenuOpen(false)}
                                             >
                                                 Dashboard
+                                            </Link>
+
+                                            <Link
+                                                to="/profile"
+                                                className="btn btn-secondary btn-sm link-btn w-100"
+                                                onClick={() => setProfileMenuOpen(false)}
+                                            >
+                                                Profile
                                             </Link>
 
                                             {user.role === 'ADMIN' && (

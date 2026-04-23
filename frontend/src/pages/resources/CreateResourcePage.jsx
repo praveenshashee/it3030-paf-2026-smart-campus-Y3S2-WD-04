@@ -4,6 +4,8 @@ import ResourceForm from '../../components/resources/ResourceForm';
 import { createResource } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { isEndTimeAfterStartTime } from '../../utils/timeValidation';
 
 function CreateResourcePage() {
     const navigate = useNavigate();
@@ -15,6 +17,8 @@ function CreateResourcePage() {
         type: 'LECTURE_HALL',
         capacity: '',
         location: '',
+        availableFromTime: '08:00',
+        availableToTime: '18:00',
         status: 'ACTIVE',
     });
 
@@ -30,6 +34,11 @@ function CreateResourcePage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!isEndTimeAfterStartTime(formData.availableFromTime, formData.availableToTime)) {
+            setError('Resource available-to time must be after available-from time.');
+            return;
+        }
+
         try {
             await createResource({
                 ...formData,
@@ -39,7 +48,7 @@ function CreateResourcePage() {
             setError('');
             navigate('/resources');
         } catch (err) {
-            setError('Failed to create resource.');
+            setError(getApiErrorMessage(err, 'Failed to create resource.'));
             console.error(err);
         }
     };

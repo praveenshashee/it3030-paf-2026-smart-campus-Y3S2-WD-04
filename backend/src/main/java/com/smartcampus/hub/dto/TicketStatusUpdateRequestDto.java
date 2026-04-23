@@ -8,6 +8,7 @@ public class TicketStatusUpdateRequestDto {
     @NotNull(message = "Status is required.")
     private TicketStatus status;
 
+    private Long assignedTechnicianId;
     private String assignedTechnicianName;
     private String resolutionNotes;
     private String rejectionReason;
@@ -21,6 +22,10 @@ public class TicketStatusUpdateRequestDto {
 
     public String getAssignedTechnicianName() {
         return assignedTechnicianName;
+    }
+
+    public Long getAssignedTechnicianId() {
+        return assignedTechnicianId;
     }
 
     public String getResolutionNotes() {
@@ -37,6 +42,10 @@ public class TicketStatusUpdateRequestDto {
 
     public void setAssignedTechnicianName(String assignedTechnicianName) {
         this.assignedTechnicianName = assignedTechnicianName;
+    }
+
+    public void setAssignedTechnicianId(Long assignedTechnicianId) {
+        this.assignedTechnicianId = assignedTechnicianId;
     }
 
     public void setResolutionNotes(String resolutionNotes) {

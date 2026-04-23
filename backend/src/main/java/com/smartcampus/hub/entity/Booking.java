@@ -20,6 +20,10 @@ public class Booking {
     @JoinColumn(name = "resource_id", nullable = false)
     private Resource resource;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id")
+    private User createdBy;
+
     private LocalDate bookingDate;
 
     private LocalTime startTime;
@@ -46,6 +50,10 @@ public class Booking {
 
     public Resource getResource() {
         return resource;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
     }
 
     public LocalDate getBookingDate() {
@@ -86,6 +94,10 @@ public class Booking {
 
     public void setResource(Resource resource) {
         this.resource = resource;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
 
     public void setBookingDate(LocalDate bookingDate) {

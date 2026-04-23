@@ -141,11 +141,19 @@ function LandingPage() {
 
                                             <div className="profile-dropdown-actions">
                                                 <Link
-                                                    to="/profile"
+                                                    to="/dashboard"
                                                     className="btn btn-primary btn-sm link-btn w-100"
                                                     onClick={() => setProfileMenuOpen(false)}
                                                 >
                                                     Dashboard
+                                                </Link>
+
+                                                <Link
+                                                    to="/profile"
+                                                    className="btn btn-secondary btn-sm link-btn w-100"
+                                                    onClick={() => setProfileMenuOpen(false)}
+                                                >
+                                                    Profile
                                                 </Link>
 
                                                 {user.role === 'ADMIN' && (

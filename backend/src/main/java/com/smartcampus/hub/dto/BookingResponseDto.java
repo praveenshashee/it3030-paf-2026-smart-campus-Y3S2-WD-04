@@ -9,6 +9,9 @@ import java.time.LocalTime;
 public class BookingResponseDto {
 
     private Long id;
+    private Long createdByUserId;
+    private String createdByName;
+    private String createdByEmail;
     private Long resourceId;
     private String resourceName;
     private LocalDate bookingDate;
@@ -22,6 +25,9 @@ public class BookingResponseDto {
 
     public BookingResponseDto(
             Long id,
+            Long createdByUserId,
+            String createdByName,
+            String createdByEmail,
             Long resourceId,
             String resourceName,
             LocalDate bookingDate,
@@ -33,6 +39,9 @@ public class BookingResponseDto {
             String adminReason,
             LocalDateTime createdAt) {
         this.id = id;
+        this.createdByUserId = createdByUserId;
+        this.createdByName = createdByName;
+        this.createdByEmail = createdByEmail;
         this.resourceId = resourceId;
         this.resourceName = resourceName;
         this.bookingDate = bookingDate;
@@ -47,6 +56,18 @@ public class BookingResponseDto {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getCreatedByUserId() {
+        return createdByUserId;
+    }
+
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public String getCreatedByEmail() {
+        return createdByEmail;
     }
 
     public Long getResourceId() {
