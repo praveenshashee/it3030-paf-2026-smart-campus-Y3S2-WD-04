@@ -2,8 +2,11 @@ package com.smartcampus.hub.service;
 
 import com.smartcampus.hub.dto.NotificationResponseDto;
 import com.smartcampus.hub.entity.Notification;
+import com.smartcampus.hub.entity.User;
 import com.smartcampus.hub.enums.NotificationType;
+import com.smartcampus.hub.enums.Role;
 import com.smartcampus.hub.repository.NotificationRepository;
+import com.smartcampus.hub.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,13 +16,26 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(
+            NotificationRepository notificationRepository,
+            UserRepository userRepository,
+            CurrentUserService currentUserService) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
     public List<NotificationResponseDto> getAllNotifications() {
-        return notificationRepository.findAll()
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser == null) {
+            return List.of();
+        }
+
+        return notificationRepository.findByRecipient(currentUser)
                 .stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .map(this::mapToResponseDto)
@@ -33,15 +49,27 @@ public class NotificationService {
             return null;
         }
 
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser == null ||
+                notification.getRecipient() == null ||
+                !notification.getRecipient().getId().equals(currentUser.getId())) {
+            return null;
+        }
+
         notification.setIsRead(true);
         Notification updatedNotification = notificationRepository.save(notification);
 
         return mapToResponseDto(updatedNotification);
     }
 
-    // Reusable helper so other services can create notifications easily.
-    public void createNotification(NotificationType type, String title, String message) {
+    public void createNotification(User recipient, NotificationType type, String title, String message) {
+        if (recipient == null) {
+            return;
+        }
+
         Notification notification = new Notification();
+        notification.setRecipient(recipient);
         notification.setType(type);
         notification.setTitle(title);
         notification.setMessage(message);
@@ -51,9 +79,18 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void notifyAdmins(NotificationType type, String title, String message) {
+        userRepository.findByRole(Role.ADMIN)
+                .forEach(admin -> createNotification(admin, type, title, message));
+    }
+
     private NotificationResponseDto mapToResponseDto(Notification notification) {
+        User recipient = notification.getRecipient();
+
         return new NotificationResponseDto(
                 notification.getId(),
+                recipient != null ? recipient.getId() : null,
+                recipient != null ? recipient.getFullName() : null,
                 notification.getType(),
                 notification.getTitle(),
                 notification.getMessage(),

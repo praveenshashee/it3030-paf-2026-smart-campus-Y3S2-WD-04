@@ -98,10 +98,10 @@ public class TicketService {
 
         Ticket savedTicket = ticketRepository.save(ticket);
 
-        notificationService.createNotification(
+        notificationService.notifyAdmins(
                 NotificationType.TICKET,
                 "New ticket created",
-                "A new ticket was created for category: " + savedTicket.getCategory());
+                currentUser.getFullName() + " created a ticket for category: " + savedTicket.getCategory());
 
         return mapToResponseDto(savedTicket);
     }
@@ -138,9 +138,18 @@ public class TicketService {
         Ticket updatedTicket = ticketRepository.save(ticket);
 
         notificationService.createNotification(
+                ticket.getCreatedBy(),
                 NotificationType.TICKET,
                 "Ticket status updated",
-                "Ticket #" + ticket.getId() + " status changed to " + ticket.getStatus());
+                "Your ticket #" + ticket.getId() + " status changed to " + ticket.getStatus());
+
+        if (assignedTechnician != null && currentUser.getRole() == Role.ADMIN) {
+            notificationService.createNotification(
+                    assignedTechnician,
+                    NotificationType.TICKET,
+                    "Ticket assigned",
+                    "Ticket #" + ticket.getId() + " has been assigned to you.");
+        }
 
         return mapToResponseDto(updatedTicket);
     }

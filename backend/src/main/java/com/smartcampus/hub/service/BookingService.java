@@ -103,10 +103,10 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        notificationService.createNotification(
+        notificationService.notifyAdmins(
                 NotificationType.BOOKING,
                 "New booking request created",
-                "A booking request was created for resource: " + resource.getName());
+                currentUser.getFullName() + " requested a booking for resource: " + resource.getName());
 
         return mapToResponseDto(savedBooking);
     }
@@ -124,9 +124,10 @@ public class BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
 
         notificationService.createNotification(
+                booking.getCreatedBy(),
                 NotificationType.BOOKING,
                 "Booking approved",
-                "Booking #" + booking.getId() + " has been approved.");
+                "Your booking #" + booking.getId() + " has been approved.");
 
         return mapToResponseDto(updatedBooking);
     }
@@ -144,9 +145,10 @@ public class BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
 
         notificationService.createNotification(
+                booking.getCreatedBy(),
                 NotificationType.BOOKING,
                 "Booking rejected",
-                "Booking #" + booking.getId() + " has been rejected.");
+                "Your booking #" + booking.getId() + " has been rejected.");
 
         return mapToResponseDto(updatedBooking);
     }
@@ -164,9 +166,10 @@ public class BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
 
         notificationService.createNotification(
+                booking.getCreatedBy(),
                 NotificationType.BOOKING,
                 "Booking cancelled",
-                "Booking #" + booking.getId() + " has been cancelled.");
+                "Your booking #" + booking.getId() + " has been cancelled.");
 
         return mapToResponseDto(updatedBooking);
     }
