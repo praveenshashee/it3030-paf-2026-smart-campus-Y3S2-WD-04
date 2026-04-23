@@ -477,6 +477,99 @@ body::selection {
   line-height: 1;
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.dashboard-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.dashboard-stat-card {
+  padding: 20px;
+  text-decoration: none;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.dashboard-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.dashboard-panel {
+  padding: 22px;
+}
+
+.dashboard-panel-wide {
+  grid-column: 1 / -1;
+}
+
+.dashboard-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.dashboard-panel-header h2 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.dashboard-panel-link {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(204, 151, 142, 0.2);
+}
+
+.dashboard-list-item strong {
+  display: block;
+  color: var(--primary);
+  font-size: 0.95rem;
+}
+
+.dashboard-list-item span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.dashboard-empty-text {
+  margin: 0;
+  color: var(--text-muted);
+}
+
 
 /* =========================================================
    11) FILTER / TOOLBAR AREA
@@ -1527,6 +1620,14 @@ body::selection {
    26) RESPONSIVE - LARGE / TABLET
    ========================================================= */
 @media (max-width: 992px) {
+  .dashboard-stat-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .dashboard-panel-grid {
+    grid-template-columns: 1fr;
+  }
+
   .filter-toolbar-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -1577,6 +1678,23 @@ body::selection {
 @media (max-width: 768px) {
   .page-shell {
     padding: 24px 16px 36px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .dashboard-header .btn {
+    width: 100%;
+  }
+
+  .dashboard-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-list-item {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .form-card,
