@@ -1,8 +1,6 @@
 # Smart Campus Hub
 
-Smart Campus Hub is a full-stack web application designed to support campus operations through one centralized platform. The system allows users to manage resources, create bookings, submit maintenance tickets, receive notifications, and manage user roles through an admin interface.
-
----
+Smart Campus Hub is a full-stack web application for campus operations. It helps users manage resources, bookings, maintenance tickets, notifications, profiles, and admin user roles from one place.
 
 ## Features
 
@@ -11,16 +9,15 @@ Smart Campus Hub is a full-stack web application designed to support campus oper
 - Resource management
 - Booking management
 - Ticket management
-- Notifications system
+- Notifications
 - Profile page
 - Admin user role management
 - Role-based route and UI protection
 
----
-
 ## Tech Stack
 
-### Frontend
+**Frontend**
+
 - React
 - Vite
 - React Router
@@ -28,296 +25,263 @@ Smart Campus Hub is a full-stack web application designed to support campus oper
 - Bootstrap
 - Custom CSS
 
-### Backend
+**Backend**
+
 - Spring Boot
 - Spring Security
 - Spring Data JPA
 - Hibernate
 - OAuth2 Client
 
-### Database
-- MySQL
+**Database**
 
----
+- MySQL
 
 ## Prerequisites
 
-Make sure these are installed on your machine:
+Install these before running the project:
 
-- Node.js
-- npm
+- Git
+- Node.js and npm
 - Java 17
 - MySQL Server
-- Git
-
----
 
 ## Project Structure
 
 ```text
 smart-campus-hub/
-│
-├── frontend/   # React + Vite frontend
-├── backend/    # Spring Boot backend
-└── README.md
-````
-
-how to do :-
----
-
-## 1. Clone the Project
-
-```bash
-git clone <your-repository-url>
-cd smart-campus-hub
+|-- backend/    # Spring Boot backend
+|-- frontend/   # React + Vite frontend
+|-- docs/       # Project documents
+`-- README.md
 ```
 
----
+## 1. Clone The Project
 
-## 2. Create the Database
+```bash
+git clone <repository-url>
+cd <repository-folder>
+```
 
-Open MySQL and run:
+Replace `<repository-url>` with the GitHub repository URL.
+
+## 2. Create The Database
+
+Open MySQL and create the database:
 
 ```sql
 CREATE DATABASE smart_campus_db;
 ```
 
----
+The backend currently expects this database name:
 
-## 3. Backend Setup
+```text
+smart_campus_db
+```
 
-### Go to the backend folder
+## 3. Configure The Backend
+
+Go to the backend folder:
 
 ```bash
 cd backend
 ```
 
-### Configure safe OAuth properties
+Open:
 
-In:
-
-```
+```text
 backend/src/main/resources/application.properties
 ```
 
-make sure these lines exist:
-
-```properties
-spring.config.import=optional:file:.env.properties
-
-spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:}
-spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:}
-spring.security.oauth2.client.registration.google.scope=openid,profile,email
-```
-
-### Create a local secret file
-
-Create this file inside the `backend` folder:
-
-```
-.env.properties
-```
-
-Add your real Google OAuth credentials there:
-
-```properties
-GOOGLE_CLIENT_ID=your_real_google_client_id
-GOOGLE_CLIENT_SECRET=your_real_google_client_secret
-```
-
-### Ignore the local secret file
-
-In:
-
-```
-backend/.gitignore
-```
-
-add:
-
-```gitignore
-.env.properties
-```
-
-### Configure database connection
-
-In `application.properties`, make sure your MySQL settings match your local setup. Example:
+Check that the MySQL username and password match your local MySQL setup:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/smart_campus_db
-spring.datasource.username=your_mysql_username
-spring.datasource.password=your_mysql_password
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+spring.datasource.username=root
+spring.datasource.password=root
 ```
 
-### Run the backend
+If your MySQL username or password is different, update those values locally.
 
-For Windows PowerShell:
+## 4. Set Up Google OAuth
 
-```powershell
-.\mvnw spring-boot:run
-```
+Each developer should create their own Google OAuth client. Do not commit or share your Google client secret in GitHub.
 
-For Git Bash / macOS / Linux:
+This will not break the login system. The project reads OAuth credentials from a local ignored file, so each machine can use its own Google client ID and secret.
 
-```bash
-./mvnw spring-boot:run
-```
+### Create A Google OAuth Client
 
-The backend should run on:
+1. Go to the Google Cloud Console.
+2. Create or select a project.
+3. Configure the OAuth consent screen if Google asks for it.
+4. Create an OAuth client ID.
+5. Choose **Web application** as the application type.
 
-```
-http://localhost:8080
-```
+Use these local development URLs:
 
----
-
-## 4. Frontend Setup
-
-Open a new terminal and go to the frontend folder:
-
-```bash
-cd frontend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run the frontend:
-
-```bash
-npm run dev
-```
-
-The frontend should run on:
+**Authorized JavaScript origin**
 
 ```text
 http://localhost:5173
 ```
 
----
+**Authorized redirect URI**
 
-## 5. Google OAuth Setup
-
-This project uses Google OAuth 2.0 login.
-
-Create a Google OAuth client and configure the following:
-
-### Authorized Redirect URI
-
-```
+```text
 http://localhost:8080/login/oauth2/code/google
 ```
 
-### Authorized JavaScript Origin
+### Create The Local Secret File
 
-```
-http://localhost:5173
-```
+Inside the `backend` folder, create this file:
 
-Then copy the generated Google client ID and secret into:
-
-```
-backend/.env.properties
+```text
+.env.properties
 ```
 
----
+Add your own Google OAuth credentials:
 
-## 6. Running the Project
-
-You need both backend and frontend running at the same time.
-
-### Backend
-
+```properties
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
+
+Important: `backend/.env.properties` is ignored by Git and must stay private.
+
+The backend already imports this file through:
+
+```properties
+spring.config.import=optional:file:.env.properties
+spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:}
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:}
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+```
+
+## 5. Run The Backend
+
+From the `backend` folder:
+
+**Windows PowerShell**
+
+```powershell
+.\mvnw spring-boot:run
+```
+
+**Git Bash, macOS, or Linux**
+
+```bash
+./mvnw spring-boot:run
+```
+
+The backend should run at:
+
+```text
 http://localhost:8080
 ```
 
-### Frontend
+Keep this terminal open while working.
 
+## 6. Run The Frontend
+
+Open a second terminal from the project root, then run:
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+
+The frontend should run at:
+
+```text
 http://localhost:5173
 ```
 
-Open the frontend URL in your browser to use the system.
+Open that URL in your browser.
 
----
+Keep this terminal open while working.
 
-## 7. Login Options
+## 7. Daily Development Commands
 
-### Google OAuth Login
+Start the backend:
+
+```bash
+cd backend
+```
+
+Then run the correct Maven wrapper command for your terminal.
+
+Start the frontend:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Stop either server by pressing `Ctrl + C` in its terminal.
+
+## Login Options
+
+**Google OAuth Login**
 
 Use the **Continue with Google** button on the login page.
 
-### Demo Logins
+**Demo Logins**
 
-For easier testing during development, temporary demo logins are available:
+Temporary demo logins are available for development:
 
-* Demo User
-* Demo Admin
-* Demo Technician
+- Demo User
+- Demo Admin
+- Demo Technician
 
-These are useful for testing role-based UI and permissions without signing in to Google repeatedly.
+These are useful for checking role-based screens without signing in through Google every time.
 
----
+## Main Pages
 
-## 8. Main Pages
+- `/` - Landing page
+- `/login` - Login page
+- `/resources` - Resources
+- `/bookings` - Bookings
+- `/tickets` - Tickets
+- `/notifications` - Notifications
+- `/profile` - Profile page
+- `/admin/users` - Admin role management page
 
-* `/` - Landing page
-* `/login` - Login page
-* `/resources` - Resources
-* `/bookings` - Bookings
-* `/tickets` - Tickets
-* `/notifications` - Notifications
-* `/profile` - Profile page
-* `/admin/users` - Admin role management page
+## Roles
 
----
+**USER**
 
-## 9. Roles
+- View resources
+- View bookings
+- View tickets
+- View notifications
+- Create bookings
+- Create tickets
 
-### USER
+**ADMIN**
 
-* View resources
-* View bookings
-* View tickets
-* View notifications
-* Create bookings
-* Create tickets
+- Full resource management
+- Booking management
+- Ticket management
+- User role management
 
-### ADMIN
+**TECHNICIAN**
 
-* Full resource management
-* Booking management
-* Ticket management
-* User role management
+- View resources
+- View bookings
+- View tickets
+- View notifications
+- Manage ticket workflow actions
 
-### TECHNICIAN
+## Notes For New Developers
 
-* View resources
-* View bookings
-* View tickets
-* View notifications
-* Manage ticket workflow actions
+- New Google users are automatically created in the database on first login.
+- A new user's default role is usually `USER`.
+- Admin users can change roles from the **Manage Users** page.
+- Work on styling or component adjustments from the `frontend/src` folder.
+- Do not commit local secrets, build output, or dependency folders.
 
----
-
-## 10. Notes for New Users
-
-* New Google users are automatically created in the database on first login.
-* Default role is usually `USER`.
-* Admin users can change user roles from the **Manage Users** page.
-* Temporary demo logins exist only for easier testing and development.
-
----
-
-## 11. Reset Notifications (Optional)
+## Optional Cleanup
 
 If notifications pile up during testing, you can clear them from MySQL:
 
@@ -325,33 +289,33 @@ If notifications pile up during testing, you can clear them from MySQL:
 TRUNCATE TABLE notifications;
 ```
 
----
+Generated folders can be deleted safely when needed:
 
-## 12. Common Troubleshooting
+- `frontend/dist`
+- `backend/target`
 
-### Backend does not start
+They will be recreated by the frontend/backend build commands.
 
-Check:
+## Troubleshooting
 
-* MySQL is running
-* database name is correct
-* username/password are correct
-* Java 17 is installed
+**Backend does not start**
 
-### Google login does not work
+- Check that MySQL is running.
+- Check that `smart_campus_db` exists.
+- Check your MySQL username and password in `application.properties`.
+- Check that Java 17 is installed.
 
-Check:
+**Google login does not work**
 
-* client ID and secret are correct
-* redirect URI is exactly:
-  `http://localhost:8080/login/oauth2/code/google`
-* JavaScript origin is exactly:
-  `http://localhost:5173`
+- Check that `backend/.env.properties` exists.
+- Check that your Google client ID and secret are correct.
+- Check that the redirect URI is exactly `http://localhost:8080/login/oauth2/code/google`.
+- Check that the JavaScript origin is exactly `http://localhost:5173`.
+- Restart the backend after changing `.env.properties`.
 
-### Frontend cannot fetch backend data
+**Frontend cannot fetch backend data**
 
-Check:
+- Check that the backend is running on `http://localhost:8080`.
+- Check that the frontend is running on `http://localhost:5173`.
+- Check that you are logged in or using the correct demo login.
 
-* backend is running on port 8080
-* frontend is running on port 5173
-* backend session/auth config is not broken
