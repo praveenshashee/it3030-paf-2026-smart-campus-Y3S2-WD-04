@@ -78,4 +78,32 @@ public class ResourceRequestDto {
     public ResourceStatus getStatus() {
         return status;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(ResourceType type) {
+        this.type = type;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setAvailableFromTime(LocalTime availableFromTime) {
+        this.availableFromTime = availableFromTime;
+    }
+
+    public void setAvailableToTime(LocalTime availableToTime) {
+        this.availableToTime = availableToTime;
+    }
+
+    public void setStatus(ResourceStatus status) {
+        this.status = status;
+    }
 }

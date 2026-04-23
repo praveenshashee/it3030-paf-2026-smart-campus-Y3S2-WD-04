@@ -5,6 +5,7 @@ import { getResourceById, updateResource } from '../../services/resourceService'
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { isEndTimeAfterStartTime } from '../../utils/timeValidation';
 
 function EditResourcePage() {
     const { id } = useParams();
@@ -62,6 +63,11 @@ function EditResourcePage() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if (!isEndTimeAfterStartTime(formData.availableFromTime, formData.availableToTime)) {
+            setError('Resource available-to time must be after available-from time.');
+            return;
+        }
 
         try {
             await updateResource(id, {

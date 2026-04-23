@@ -5,6 +5,7 @@ import { createResource } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { isEndTimeAfterStartTime } from '../../utils/timeValidation';
 
 function CreateResourcePage() {
     const navigate = useNavigate();
@@ -32,6 +33,11 @@ function CreateResourcePage() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if (!isEndTimeAfterStartTime(formData.availableFromTime, formData.availableToTime)) {
+            setError('Resource available-to time must be after available-from time.');
+            return;
+        }
 
         try {
             await createResource({
