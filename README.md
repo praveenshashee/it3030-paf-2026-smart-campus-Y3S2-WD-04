@@ -1,18 +1,23 @@
 # Smart Campus Hub
 
-Smart Campus Hub is a full-stack web application for campus operations. It helps users manage resources, bookings, maintenance tickets, notifications, profiles, and admin user roles from one place.
+Smart Campus Hub is a full-stack web application for campus operations. It helps users manage resources, bookings, maintenance tickets, notifications, role dashboards, profiles, and admin user roles from one place.
 
 ## Features
 
 - Google OAuth 2.0 login
 - Temporary demo logins for testing
-- Resource management
-- Booking management
-- Ticket management
-- Notifications
+- Resource catalogue and admin resource management
+- Resource availability time windows
+- Booking requests with conflict and availability validation
+- Booking approval, rejection, and cancellation workflow
+- Maintenance ticket workflow with admin/technician handling
+- Per-user notifications
+- Role-based dashboards and analytics
 - Profile page
 - Admin user role management
-- Role-based route and UI protection
+- Role-based backend security and frontend route protection
+- Meaningful API error messages for validation and workflow failures
+- Dark modern UI styling across the app
 
 ## Tech Stack
 
@@ -220,6 +225,28 @@ npm run dev
 
 Stop either server by pressing `Ctrl + C` in its terminal.
 
+## Build / Verification Commands
+
+Run backend tests from the `backend` folder:
+
+```bash
+./mvnw test
+```
+
+On Windows PowerShell:
+
+```powershell
+.\mvnw.cmd test
+```
+
+Run the frontend production build from the `frontend` folder:
+
+```bash
+npm run build
+```
+
+The frontend build creates `frontend/dist`. This folder is generated output and should not be committed.
+
 ## Login Options
 
 **Google OAuth Login**
@@ -244,42 +271,82 @@ These are useful for checking role-based screens without signing in through Goog
 - `/bookings` - Bookings
 - `/tickets` - Tickets
 - `/notifications` - Notifications
+- `/dashboard` - Role-based dashboard
 - `/profile` - Profile page
 - `/admin/users` - Admin role management page
+
+Protected pages such as bookings, tickets, notifications, dashboard, profile, and admin user management require login. If a logged-out user opens a protected page, the app redirects to the landing page and shows a login-required prompt.
 
 ## Roles
 
 **USER**
 
 - View resources
-- View bookings
-- View tickets
-- View notifications
-- Create bookings
-- Create tickets
+- Create and view their own bookings
+- Create and view their own tickets
+- View their own notifications
+- Use the user dashboard
 
 **ADMIN**
 
 - Full resource management
-- Booking management
-- Ticket management
+- Review, approve, reject, and cancel bookings
+- View and manage tickets
+- Assign technicians to tickets
 - User role management
+- View admin notifications and analytics dashboard
 
 **TECHNICIAN**
 
 - View resources
-- View bookings
-- View tickets
-- View notifications
-- Manage ticket workflow actions
+- View assigned tickets
+- Update ticket workflow actions
+- View technician notifications and analytics dashboard
+
+## Current Workflows
+
+**Resources**
+
+- Admin can create, edit, and delete resources.
+- Resources include type, capacity, location, status, and available start/end times.
+- Users can browse and filter resources.
+
+**Bookings**
+
+- Logged-in users can request bookings.
+- The backend checks for overlapping bookings and resource availability windows.
+- Admin can approve, reject, or cancel bookings with reasons.
+- Notifications are sent to the correct users/admins.
+
+**Tickets**
+
+- Logged-in users can create maintenance tickets.
+- Admin can assign tickets to technicians.
+- Admin or technician can update ticket status.
+- Ticket updates notify the correct user/technician.
+
+**Notifications**
+
+- Each user only sees their own notifications.
+- Notifications can be filtered by read status and type.
+- Notification cards link users to the related module.
+
+**Dashboards**
+
+- Admin dashboard shows resource, booking, ticket, and notification analytics.
+- User dashboard shows the user's booking/ticket activity.
+- Technician dashboard shows assigned ticket activity and priority/status breakdowns.
 
 ## Notes For New Developers
 
 - New Google users are automatically created in the database on first login.
 - A new user's default role is usually `USER`.
 - Admin users can change roles from the **Manage Users** page.
+- Dashboard is opened from the profile dropdown after login.
+- Bookings, tickets, notifications, profile, and dashboard are protected routes.
 - Work on styling or component adjustments from the `frontend/src` folder.
 - Do not commit local secrets, build output, or dependency folders.
+- Do not commit `backend/.env.properties`, `frontend/node_modules`, `frontend/dist`, or `backend/target`.
 
 ## Optional Cleanup
 
@@ -318,4 +385,18 @@ They will be recreated by the frontend/backend build commands.
 - Check that the backend is running on `http://localhost:8080`.
 - Check that the frontend is running on `http://localhost:5173`.
 - Check that you are logged in or using the correct demo login.
+- Resources are public, but bookings, tickets, notifications, dashboard, and profile require login.
+- If resources also fail to load, the backend is probably not running or MySQL/backend startup failed.
+
+**Bookings or tickets redirect to the landing page**
+
+- This is expected when you are not logged in.
+- Login with Google or one of the demo roles first.
+
+## Submission Notes
+
+- Do not include compiled/generated folders in the final zip.
+- Do not include local OAuth secrets.
+- Include screenshots or Postman evidence for key workflows in the final report.
+- Disclose AI tool usage in the report/progress documentation if required by the module instructions.
 
