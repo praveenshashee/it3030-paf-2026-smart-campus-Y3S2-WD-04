@@ -15,6 +15,8 @@ function CreateResourcePage() {
         type: 'LECTURE_HALL',
         capacity: '',
         location: '',
+        availableFromTime: '08:00',
+        availableToTime: '18:00',
         status: 'ACTIVE',
     });
 

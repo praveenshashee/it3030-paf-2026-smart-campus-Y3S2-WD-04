@@ -4,6 +4,8 @@ import com.smartcampus.hub.enums.ResourceStatus;
 import com.smartcampus.hub.enums.ResourceType;
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "resources")
 public class Resource {
@@ -20,6 +22,10 @@ public class Resource {
     private Integer capacity;
 
     private String location;
+
+    private LocalTime availableFromTime;
+
+    private LocalTime availableToTime;
 
     @Enumerated(EnumType.STRING)
     private ResourceStatus status;
@@ -56,6 +62,14 @@ public class Resource {
         return location;
     }
 
+    public LocalTime getAvailableFromTime() {
+        return availableFromTime;
+    }
+
+    public LocalTime getAvailableToTime() {
+        return availableToTime;
+    }
+
     public ResourceStatus getStatus() {
         return status;
     }
@@ -78,6 +92,14 @@ public class Resource {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void setAvailableFromTime(LocalTime availableFromTime) {
+        this.availableFromTime = availableFromTime;
+    }
+
+    public void setAvailableToTime(LocalTime availableToTime) {
+        this.availableToTime = availableToTime;
     }
 
     public void setStatus(ResourceStatus status) {

@@ -14,6 +14,8 @@ function EditResourcePage() {
         type: 'LECTURE_HALL',
         capacity: '',
         location: '',
+        availableFromTime: '08:00',
+        availableToTime: '18:00',
         status: 'ACTIVE',
     });
 
@@ -34,6 +36,8 @@ function EditResourcePage() {
                 type: resource.type,
                 capacity: resource.capacity,
                 location: resource.location,
+                availableFromTime: resource.availableFromTime?.slice(0, 5) || '08:00',
+                availableToTime: resource.availableToTime?.slice(0, 5) || '18:00',
                 status: resource.status,
             });
 

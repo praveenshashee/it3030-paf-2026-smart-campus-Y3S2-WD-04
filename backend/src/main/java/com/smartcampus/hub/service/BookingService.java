@@ -13,6 +13,7 @@ import com.smartcampus.hub.repository.ResourceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -76,6 +77,10 @@ public class BookingService {
 
         // Basic validation: booking must end after it starts.
         if (!requestDto.getEndTime().isAfter(requestDto.getStartTime())) {
+            return null;
+        }
+
+        if (!isWithinAvailabilityWindow(resource, requestDto.getStartTime(), requestDto.getEndTime())) {
             return null;
         }
 
@@ -186,6 +191,17 @@ public class BookingService {
                         booking.getStatus() != BookingStatus.CANCELLED)
                 .anyMatch(booking -> newStartTime.isBefore(booking.getEndTime()) &&
                         newEndTime.isAfter(booking.getStartTime()));
+    }
+
+    private boolean isWithinAvailabilityWindow(Resource resource, LocalTime startTime, LocalTime endTime) {
+        LocalTime availableFrom = resource.getAvailableFromTime() != null
+                ? resource.getAvailableFromTime()
+                : ResourceService.DEFAULT_AVAILABLE_FROM_TIME;
+        LocalTime availableTo = resource.getAvailableToTime() != null
+                ? resource.getAvailableToTime()
+                : ResourceService.DEFAULT_AVAILABLE_TO_TIME;
+
+        return !startTime.isBefore(availableFrom) && !endTime.isAfter(availableTo);
     }
 
     private BookingResponseDto mapToResponseDto(Booking booking) {

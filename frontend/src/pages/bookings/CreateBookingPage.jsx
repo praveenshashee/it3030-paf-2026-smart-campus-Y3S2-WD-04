@@ -47,6 +47,14 @@ function CreateBookingPage() {
         }));
     };
 
+    const selectedResource = resources.find(
+        (resource) => String(resource.id) === String(formData.resourceId)
+    );
+
+    const formatTime = (time) => {
+        return time ? time.slice(0, 5) : '-';
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -124,6 +132,14 @@ function CreateBookingPage() {
                                             onChange={handleChange}
                                         />
                                     </div>
+
+                                    {selectedResource && (
+                                        <div className="col-12">
+                                            <div className="alert alert-info mb-0">
+                                                Available from {formatTime(selectedResource.availableFromTime)} to {formatTime(selectedResource.availableToTime)}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="col-md-6">
                                         <label className="form-label">Start Time</label>

@@ -70,6 +70,10 @@ function ResourcesPage() {
             : 'status-badge status-out';
     };
 
+    const formatTime = (time) => {
+        return time ? time.slice(0, 5) : '-';
+    };
+
     const totalResources = resources.length;
     const activeResources = resources.filter(
         (resource) => resource.status === 'ACTIVE'
@@ -191,6 +195,7 @@ function ResourcesPage() {
                                             <th>Type</th>
                                             <th>Capacity</th>
                                             <th>Location</th>
+                                            <th>Availability</th>
                                             <th>Status</th>
                                             {isAdmin && (
                                                 <th style={{ width: '180px' }}>Actions</th>
@@ -206,6 +211,9 @@ function ResourcesPage() {
                                                     <td>{resource.type}</td>
                                                     <td>{resource.capacity}</td>
                                                     <td>{resource.location}</td>
+                                                    <td>
+                                                        {formatTime(resource.availableFromTime)} - {formatTime(resource.availableToTime)}
+                                                    </td>
                                                     <td>
                                                         <span className={getStatusClass(resource.status)}>
                                                             {resource.status}
@@ -234,7 +242,7 @@ function ResourcesPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={isAdmin ? 7 : 6}>
+                                                <td colSpan={isAdmin ? 8 : 7}>
                                                     <div className="empty-state-card">
                                                         <h3 className="empty-state-title">No resources found</h3>
                                                         <p className="empty-state-text">
