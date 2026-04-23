@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppNavbar from '../components/AppNavbar';
 import PageTransition from '../components/PageTransition';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,7 @@ import { getAllTickets } from '../services/ticketService';
 
 function DashboardPage() {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const [resources, setResources] = useState([]);
     const [bookings, setBookings] = useState([]);
@@ -56,11 +57,12 @@ function DashboardPage() {
 
         if (user?.role === 'ADMIN') {
             return [
-                { label: 'Total Resources', value: resources.length, to: '/resources' },
+                { label: 'Total Resources', value: resources.length, to: '/resources', tone: 'rose' },
                 {
                     label: 'Pending Bookings',
                     value: bookings.filter((booking) => booking.status === 'PENDING').length,
                     to: '/bookings',
+                    tone: 'amber',
                 },
                 {
                     label: 'Open Tickets',
@@ -68,18 +70,20 @@ function DashboardPage() {
                         (ticket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
                     ).length,
                     to: '/tickets',
+                    tone: 'violet',
                 },
-                { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications' },
+                { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications', tone: 'green' },
             ];
         }
 
         if (user?.role === 'TECHNICIAN') {
             return [
-                { label: 'Assigned Tickets', value: tickets.length, to: '/tickets' },
+                { label: 'Assigned Tickets', value: tickets.length, to: '/tickets', tone: 'violet' },
                 {
                     label: 'In Progress',
                     value: tickets.filter((ticket) => ticket.status === 'IN_PROGRESS').length,
                     to: '/tickets',
+                    tone: 'amber',
                 },
                 {
                     label: 'Resolved / Closed',
@@ -87,20 +91,22 @@ function DashboardPage() {
                         (ticket) => ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'
                     ).length,
                     to: '/tickets',
+                    tone: 'green',
                 },
-                { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications' },
+                { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications', tone: 'rose' },
             ];
         }
 
         return [
-            { label: 'My Bookings', value: bookings.length, to: '/bookings' },
+            { label: 'My Bookings', value: bookings.length, to: '/bookings', tone: 'rose' },
             {
                 label: 'Pending Bookings',
                 value: bookings.filter((booking) => booking.status === 'PENDING').length,
                 to: '/bookings',
+                tone: 'amber',
             },
-            { label: 'My Tickets', value: tickets.length, to: '/tickets' },
-            { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications' },
+            { label: 'My Tickets', value: tickets.length, to: '/tickets', tone: 'violet' },
+            { label: 'Unread Notifications', value: unreadNotifications, to: '/notifications', tone: 'green' },
         ];
     }, [bookings, notifications, resources, tickets, user]);
 
@@ -124,15 +130,31 @@ function DashboardPage() {
                 <AppNavbar />
 
                 <div className="page-shell">
-                    <div className="page-header dashboard-header">
-                        <div>
+                    <div className="top-actions dashboard-top-actions">
+                        <button
+                            type="button"
+                            className="btn btn-secondary dashboard-back-btn"
+                            onClick={() => navigate(-1)}
+                        >
+                            Back
+                        </button>
+                    </div>
+
+                    <div className="dashboard-hero">
+                        <div className="dashboard-hero-copy">
+                            <span className="dashboard-kicker">{user?.role || 'USER'} workspace</span>
                             <h1>{roleTitle}</h1>
-                            <p>Track the work that matters most for your role.</p>
+                            <p>
+                                A focused control center for bookings, tickets, resources, and
+                                notifications connected to your role.
+                            </p>
                         </div>
 
-                        <Link to="/notifications" className="btn btn-primary link-btn">
-                            View Notifications
-                        </Link>
+                        <div className="dashboard-hero-actions">
+                            <Link to="/notifications" className="dashboard-primary-action">
+                                View Notifications
+                            </Link>
+                        </div>
                     </div>
 
                     {loading && <p>Loading dashboard...</p>}
@@ -145,8 +167,9 @@ function DashboardPage() {
                                     <Link
                                         key={item.label}
                                         to={item.to}
-                                        className="glass-card dashboard-stat-card"
+                                        className={`dashboard-stat-card dashboard-stat-${item.tone}`}
                                     >
+                                        <span className="dashboard-stat-marker" />
                                         <span className="summary-label">{item.label}</span>
                                         <strong className="summary-value">{item.value}</strong>
                                     </Link>

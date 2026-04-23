@@ -78,11 +78,6 @@ function LandingPage() {
                         </Link>
 
                         <div className="landing-nav-links">
-                            {user && (
-                                <Link to="/dashboard" className="landing-nav-link">
-                                    Dashboard
-                                </Link>
-                            )}
                             <Link to="/resources" className="landing-nav-link">
                                 Resources
                             </Link>

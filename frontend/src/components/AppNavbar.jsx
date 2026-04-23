@@ -85,17 +85,6 @@ function AppNavbar() {
                     </Link>
 
                     <div className="app-nav-links">
-                        {user && (
-                            <NavLink
-                                to="/dashboard"
-                                className={({ isActive }) =>
-                                    `app-nav-link ${isActive ? 'active' : ''}`
-                                }
-                            >
-                                Dashboard
-                            </NavLink>
-                        )}
-
                         <NavLink
                             to="/resources"
                             className={({ isActive }) =>
