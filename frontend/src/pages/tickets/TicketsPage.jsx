@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 function TicketsPage() {
-    const { user } = useAuth();
+    const { user, authLoading } = useAuth();
 
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,8 +33,12 @@ function TicketsPage() {
     const canManageTickets = user?.role === 'ADMIN' || user?.role === 'TECHNICIAN';
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
         fetchTickets();
-    }, []);
+    }, [authLoading]);
 
     useEffect(() => {
         if (user?.role === 'ADMIN') {
@@ -265,10 +269,10 @@ function TicketsPage() {
                         <div className="alert alert-success">{successMessage}</div>
                     )}
 
-                    {loading && <p>Loading tickets...</p>}
+                    {(authLoading || loading) && <p>Loading tickets...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
-                    {!loading && !error && (
+                    {!authLoading && !loading && !error && (
                         <div className="glass-card table-card">
                             <div className="table-responsive">
                                 <table className="table custom-table">

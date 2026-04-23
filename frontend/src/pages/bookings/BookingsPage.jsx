@@ -12,7 +12,7 @@ import { formatDate, formatTime } from '../../utils/formatters';
 import { useAuth } from '../../context/AuthContext';
 
 function BookingsPage() {
-    const { user } = useAuth();
+    const { user, authLoading } = useAuth();
 
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,8 +32,12 @@ function BookingsPage() {
     const canManageBookings = user?.role === 'ADMIN';
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
         fetchBookings();
-    }, []);
+    }, [authLoading]);
 
     const fetchBookings = async () => {
         try {
@@ -215,10 +219,10 @@ function BookingsPage() {
                         <div className="alert alert-success">{successMessage}</div>
                     )}
 
-                    {loading && <p>Loading bookings...</p>}
+                    {(authLoading || loading) && <p>Loading bookings...</p>}
                     {error && <div className="alert alert-danger">{error}</div>}
 
-                    {!loading && !error && (
+                    {!authLoading && !loading && !error && (
                         <div className="glass-card table-card">
                             <div className="table-responsive">
                                 <table className="table custom-table">
