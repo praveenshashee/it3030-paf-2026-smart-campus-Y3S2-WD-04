@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,9 +17,13 @@ import java.util.List;
 public class SecurityConfig {
 
     private final CustomOidcUserService customOidcUserService;
+    private final DevSessionAuthenticationFilter devSessionAuthenticationFilter;
 
-    public SecurityConfig(CustomOidcUserService customOidcUserService) {
+    public SecurityConfig(
+            CustomOidcUserService customOidcUserService,
+            DevSessionAuthenticationFilter devSessionAuthenticationFilter) {
         this.customOidcUserService = customOidcUserService;
+        this.devSessionAuthenticationFilter = devSessionAuthenticationFilter;
     }
 
     @Bean
@@ -28,12 +33,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/resources/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tickets/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/notifications/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/resources/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/resources/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/resources/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/approve").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/reject").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/cancel").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("ADMIN", "TECHNICIAN")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers("/api/tickets/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
                         .anyRequest().authenticated())
+                .addFilterBefore(devSessionAuthenticationFilter, AnonymousAuthenticationFilter.class)
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOidcUserService))

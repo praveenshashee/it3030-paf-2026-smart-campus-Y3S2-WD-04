@@ -5,11 +5,15 @@ import com.smartcampus.hub.enums.Role;
 import com.smartcampus.hub.repository.UserRepository;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CustomOidcUserService extends OidcUserService {
@@ -47,8 +51,12 @@ public class CustomOidcUserService extends OidcUserService {
             user.setProfileImageUrl(profileImageUrl);
         }
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return oidcUser;
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + savedUser.getRole().name()));
+        oidcUser.getAuthorities().forEach(authority -> authorities.add(new SimpleGrantedAuthority(authority.getAuthority())));
+
+        return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 }
