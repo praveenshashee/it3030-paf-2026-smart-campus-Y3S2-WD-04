@@ -8,8 +8,10 @@ import com.smartcampus.hub.entity.User;
 import com.smartcampus.hub.enums.BookingStatus;
 import com.smartcampus.hub.enums.NotificationType;
 import com.smartcampus.hub.enums.Role;
+import com.smartcampus.hub.exception.ApiException;
 import com.smartcampus.hub.repository.BookingRepository;
 import com.smartcampus.hub.repository.ResourceRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -66,22 +68,24 @@ public class BookingService {
         User currentUser = currentUserService.getCurrentUser();
 
         if (currentUser == null) {
-            return null;
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "You must be logged in to create a booking.");
         }
 
         Resource resource = resourceRepository.findById(requestDto.getResourceId()).orElse(null);
 
         if (resource == null) {
-            return null;
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Selected resource does not exist.");
         }
 
         // Basic validation: booking must end after it starts.
         if (!requestDto.getEndTime().isAfter(requestDto.getStartTime())) {
-            return null;
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Booking end time must be after the start time.");
         }
 
         if (!isWithinAvailabilityWindow(resource, requestDto.getStartTime(), requestDto.getEndTime())) {
-            return null;
+            throw new ApiException(
+                    HttpStatus.BAD_REQUEST,
+                    "Booking time must be within the resource availability window.");
         }
 
         // Prevent overlapping bookings for the same resource on the same date.
@@ -92,7 +96,9 @@ public class BookingService {
                 requestDto.getEndTime());
 
         if (hasConflict) {
-            return null;
+            throw new ApiException(
+                    HttpStatus.CONFLICT,
+                    "This resource is already booked during the selected time range.");
         }
 
         Booking booking = new Booking();

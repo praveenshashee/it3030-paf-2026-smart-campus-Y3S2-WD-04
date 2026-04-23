@@ -4,6 +4,7 @@ import ResourceForm from '../../components/resources/ResourceForm';
 import { createResource } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function CreateResourcePage() {
     const navigate = useNavigate();
@@ -41,7 +42,7 @@ function CreateResourcePage() {
             setError('');
             navigate('/resources');
         } catch (err) {
-            setError('Failed to create resource.');
+            setError(getApiErrorMessage(err, 'Failed to create resource.'));
             console.error(err);
         }
     };

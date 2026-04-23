@@ -4,6 +4,7 @@ import ResourceForm from '../../components/resources/ResourceForm';
 import { getResourceById, updateResource } from '../../services/resourceService';
 import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function EditResourcePage() {
     const { id } = useParams();
@@ -71,7 +72,7 @@ function EditResourcePage() {
             setError('');
             navigate('/resources');
         } catch (err) {
-            setError('Failed to update resource.');
+            setError(getApiErrorMessage(err, 'Failed to update resource.'));
             console.error(err);
         }
     };

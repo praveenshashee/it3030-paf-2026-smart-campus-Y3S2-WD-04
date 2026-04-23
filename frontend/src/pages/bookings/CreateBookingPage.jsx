@@ -4,6 +4,7 @@ import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { createBooking } from '../../services/bookingService';
 import { getAllResources } from '../../services/resourceService';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function CreateBookingPage() {
     const navigate = useNavigate();
@@ -72,7 +73,10 @@ function CreateBookingPage() {
             navigate('/bookings');
         } catch (err) {
             setError(
-                'Failed to create booking. Check for overlapping times or invalid input.'
+                getApiErrorMessage(
+                    err,
+                    'Failed to create booking. Check for overlapping times or invalid input.'
+                )
             );
             console.error(err);
         }

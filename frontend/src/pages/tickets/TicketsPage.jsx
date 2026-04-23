@@ -5,6 +5,7 @@ import PageTransition from '../../components/PageTransition';
 import { getAllTickets, updateTicketStatus } from '../../services/ticketService';
 import { getTechnicians } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function TicketsPage() {
     const { user } = useAuth();
@@ -130,7 +131,7 @@ function TicketsPage() {
             fetchTickets();
         } catch (err) {
             setSuccessMessage('');
-            setError('Failed to update ticket status.');
+            setError(getApiErrorMessage(err, 'Failed to update ticket status.'));
             console.error(err);
         }
     };

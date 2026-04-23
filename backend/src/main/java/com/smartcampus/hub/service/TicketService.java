@@ -9,9 +9,11 @@ import com.smartcampus.hub.entity.User;
 import com.smartcampus.hub.enums.NotificationType;
 import com.smartcampus.hub.enums.Role;
 import com.smartcampus.hub.enums.TicketStatus;
+import com.smartcampus.hub.exception.ApiException;
 import com.smartcampus.hub.repository.ResourceRepository;
 import com.smartcampus.hub.repository.TicketRepository;
 import com.smartcampus.hub.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -76,13 +78,17 @@ public class TicketService {
         User currentUser = currentUserService.getCurrentUser();
 
         if (currentUser == null) {
-            return null;
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "You must be logged in to create a ticket.");
         }
 
         Resource resource = null;
 
         if (requestDto.getResourceId() != null) {
             resource = resourceRepository.findById(requestDto.getResourceId()).orElse(null);
+
+            if (resource == null) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Selected resource does not exist.");
+            }
         }
 
         Ticket ticket = new Ticket();
@@ -116,7 +122,7 @@ public class TicketService {
         User currentUser = currentUserService.getCurrentUser();
 
         if (currentUser == null || !canCurrentUserManage(ticket)) {
-            return null;
+            throw new ApiException(HttpStatus.FORBIDDEN, "You are not allowed to update this ticket.");
         }
 
         User assignedTechnician = null;
@@ -125,7 +131,7 @@ public class TicketService {
             assignedTechnician = userRepository.findById(requestDto.getAssignedTechnicianId()).orElse(null);
 
             if (assignedTechnician == null || assignedTechnician.getRole() != Role.TECHNICIAN) {
-                return null;
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Selected assignee is not a technician.");
             }
         }
 

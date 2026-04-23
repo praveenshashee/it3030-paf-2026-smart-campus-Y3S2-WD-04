@@ -3,7 +3,9 @@ package com.smartcampus.hub.service;
 import com.smartcampus.hub.dto.ResourceRequestDto;
 import com.smartcampus.hub.dto.ResourceResponseDto;
 import com.smartcampus.hub.entity.Resource;
+import com.smartcampus.hub.exception.ApiException;
 import com.smartcampus.hub.repository.ResourceRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -36,6 +38,8 @@ public class ResourceService {
         }
 
         public ResourceResponseDto createResource(ResourceRequestDto requestDto) {
+                validateAvailabilityWindow(requestDto);
+
                 Resource resource = new Resource();
                 resource.setName(requestDto.getName());
                 resource.setType(requestDto.getType());
@@ -55,6 +59,8 @@ public class ResourceService {
                 if (existingResource == null) {
                         return null;
                 }
+
+                validateAvailabilityWindow(requestDto);
 
                 existingResource.setName(requestDto.getName());
                 existingResource.setType(requestDto.getType());
@@ -97,5 +103,16 @@ public class ResourceService {
 
         private LocalTime resolveAvailableToTime(LocalTime availableToTime) {
                 return availableToTime != null ? availableToTime : DEFAULT_AVAILABLE_TO_TIME;
+        }
+
+        private void validateAvailabilityWindow(ResourceRequestDto requestDto) {
+                LocalTime availableFrom = resolveAvailableFromTime(requestDto.getAvailableFromTime());
+                LocalTime availableTo = resolveAvailableToTime(requestDto.getAvailableToTime());
+
+                if (!availableTo.isAfter(availableFrom)) {
+                        throw new ApiException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Resource available-to time must be after available-from time.");
+                }
         }
 }
