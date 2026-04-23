@@ -48,7 +48,14 @@ function App() {
         }
       />
 
-      <Route path="/bookings" element={<BookingsPage />} />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            <BookingsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/bookings/create"
         element={
@@ -58,7 +65,14 @@ function App() {
         }
       />
 
-      <Route path="/tickets" element={<TicketsPage />} />
+      <Route
+        path="/tickets"
+        element={
+          <ProtectedRoute>
+            <TicketsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/tickets/create"
         element={

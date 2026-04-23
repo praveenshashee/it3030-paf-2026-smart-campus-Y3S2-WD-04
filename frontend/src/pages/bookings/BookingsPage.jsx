@@ -36,8 +36,15 @@ function BookingsPage() {
             return;
         }
 
+        if (!user) {
+            setBookings([]);
+            setLoading(false);
+            setError('');
+            return;
+        }
+
         fetchBookings();
-    }, [authLoading]);
+    }, [authLoading, user]);
 
     const fetchBookings = async () => {
         try {

@@ -37,8 +37,15 @@ function TicketsPage() {
             return;
         }
 
+        if (!user) {
+            setTickets([]);
+            setLoading(false);
+            setError('');
+            return;
+        }
+
         fetchTickets();
-    }, [authLoading]);
+    }, [authLoading, user]);
 
     useEffect(() => {
         if (user?.role === 'ADMIN') {
