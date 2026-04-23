@@ -4,8 +4,10 @@ import com.smartcampus.hub.dto.BookingRequestDto;
 import com.smartcampus.hub.dto.BookingResponseDto;
 import com.smartcampus.hub.entity.Booking;
 import com.smartcampus.hub.entity.Resource;
+import com.smartcampus.hub.entity.User;
 import com.smartcampus.hub.enums.BookingStatus;
 import com.smartcampus.hub.enums.NotificationType;
+import com.smartcampus.hub.enums.Role;
 import com.smartcampus.hub.repository.BookingRepository;
 import com.smartcampus.hub.repository.ResourceRepository;
 import org.springframework.stereotype.Service;
@@ -19,30 +21,53 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ResourceRepository resourceRepository;
     private final NotificationService notificationService;
+    private final CurrentUserService currentUserService;
 
     public BookingService(
             BookingRepository bookingRepository,
             ResourceRepository resourceRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            CurrentUserService currentUserService) {
         this.bookingRepository = bookingRepository;
         this.resourceRepository = resourceRepository;
         this.notificationService = notificationService;
+        this.currentUserService = currentUserService;
     }
 
     public List<BookingResponseDto> getAllBookings() {
-        return bookingRepository.findAll()
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser == null) {
+            return List.of();
+        }
+
+        List<Booking> bookings = currentUser.getRole() == Role.ADMIN
+                ? bookingRepository.findAll()
+                : bookingRepository.findByCreatedBy(currentUser);
+
+        return bookings
                 .stream()
                 .map(this::mapToResponseDto)
                 .toList();
     }
 
     public BookingResponseDto getBookingById(Long id) {
-        return bookingRepository.findById(id)
-                .map(this::mapToResponseDto)
-                .orElse(null);
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null || !canCurrentUserView(booking)) {
+            return null;
+        }
+
+        return mapToResponseDto(booking);
     }
 
     public BookingResponseDto createBooking(BookingRequestDto requestDto) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser == null) {
+            return null;
+        }
+
         Resource resource = resourceRepository.findById(requestDto.getResourceId()).orElse(null);
 
         if (resource == null) {
@@ -66,6 +91,7 @@ public class BookingService {
         }
 
         Booking booking = new Booking();
+        booking.setCreatedBy(currentUser);
         booking.setResource(resource);
         booking.setBookingDate(requestDto.getBookingDate());
         booking.setStartTime(requestDto.getStartTime());
@@ -160,8 +186,13 @@ public class BookingService {
     }
 
     private BookingResponseDto mapToResponseDto(Booking booking) {
+        User createdBy = booking.getCreatedBy();
+
         return new BookingResponseDto(
                 booking.getId(),
+                createdBy != null ? createdBy.getId() : null,
+                createdBy != null ? createdBy.getFullName() : null,
+                createdBy != null ? createdBy.getEmail() : null,
                 booking.getResource().getId(),
                 booking.getResource().getName(),
                 booking.getBookingDate(),
@@ -172,5 +203,20 @@ public class BookingService {
                 booking.getStatus(),
                 booking.getAdminReason(),
                 booking.getCreatedAt());
+    }
+
+    private boolean canCurrentUserView(Booking booking) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser == null) {
+            return false;
+        }
+
+        if (currentUser.getRole() == Role.ADMIN) {
+            return true;
+        }
+
+        User createdBy = booking.getCreatedBy();
+        return createdBy != null && createdBy.getId().equals(currentUser.getId());
     }
 }
