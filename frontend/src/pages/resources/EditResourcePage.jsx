@@ -72,7 +72,9 @@ function EditResourcePage() {
         try {
             await updateResource(id, {
                 ...formData,
+                name: formData.name.trim(),
                 capacity: Number(formData.capacity),
+                location: formData.location.trim(),
             });
 
             setError('');

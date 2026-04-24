@@ -21,6 +21,8 @@ function ResourceForm({
                             value={formData.name}
                             onChange={onChange}
                             placeholder="Enter resource name"
+                            required
+                            maxLength="80"
                         />
                     </div>
 
@@ -48,6 +50,9 @@ function ResourceForm({
                             value={formData.capacity}
                             onChange={onChange}
                             placeholder="Enter capacity"
+                            required
+                            min="1"
+                            step="1"
                         />
                     </div>
 
@@ -60,6 +65,8 @@ function ResourceForm({
                             value={formData.location}
                             onChange={onChange}
                             placeholder="Enter location"
+                            required
+                            maxLength="120"
                         />
                     </div>
 
@@ -84,6 +91,7 @@ function ResourceForm({
                             className="form-control"
                             value={formData.availableFromTime}
                             onChange={onChange}
+                            required
                         />
                     </div>
 
@@ -95,6 +103,7 @@ function ResourceForm({
                             className="form-control"
                             value={formData.availableToTime}
                             onChange={onChange}
+                            required
                         />
                     </div>
 

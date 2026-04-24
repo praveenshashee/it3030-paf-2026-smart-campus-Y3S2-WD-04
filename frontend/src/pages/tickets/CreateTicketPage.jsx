@@ -4,6 +4,7 @@ import AppNavbar from '../../components/AppNavbar';
 import PageTransition from '../../components/PageTransition';
 import { getAllResources } from '../../services/resourceService';
 import { createTicket } from '../../services/ticketService';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function CreateTicketPage() {
     const navigate = useNavigate();
@@ -53,17 +54,17 @@ function CreateTicketPage() {
         try {
             await createTicket({
                 resourceId: formData.resourceId ? Number(formData.resourceId) : null,
-                locationText: formData.locationText,
-                category: formData.category,
-                description: formData.description,
+                locationText: formData.locationText.trim(),
+                category: formData.category.trim(),
+                description: formData.description.trim(),
                 priority: formData.priority,
-                preferredContact: formData.preferredContact,
+                preferredContact: formData.preferredContact.trim(),
             });
 
             setError('');
             navigate('/tickets');
         } catch (err) {
-            setError('Failed to create ticket.');
+            setError(getApiErrorMessage(err, 'Failed to create ticket.'));
             console.error(err);
         }
     };
@@ -121,6 +122,8 @@ function CreateTicketPage() {
                                             value={formData.locationText}
                                             onChange={handleChange}
                                             placeholder="Enter location"
+                                            required
+                                            maxLength="120"
                                         />
                                     </div>
 
@@ -133,6 +136,8 @@ function CreateTicketPage() {
                                             value={formData.category}
                                             onChange={handleChange}
                                             placeholder="Enter issue category"
+                                            required
+                                            maxLength="60"
                                         />
                                     </div>
 
@@ -159,6 +164,8 @@ function CreateTicketPage() {
                                             value={formData.description}
                                             onChange={handleChange}
                                             placeholder="Describe the issue clearly"
+                                            required
+                                            maxLength="500"
                                         />
                                     </div>
 
@@ -171,6 +178,7 @@ function CreateTicketPage() {
                                             value={formData.preferredContact}
                                             onChange={handleChange}
                                             placeholder="Enter contact number or email"
+                                            required
                                         />
                                     </div>
 

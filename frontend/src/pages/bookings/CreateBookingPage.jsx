@@ -5,6 +5,7 @@ import PageTransition from '../../components/PageTransition';
 import { createBooking } from '../../services/bookingService';
 import { getAllResources } from '../../services/resourceService';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { isEndTimeAfterStartTime } from '../../utils/timeValidation';
 
 function CreateBookingPage() {
     const navigate = useNavigate();
@@ -59,13 +60,27 @@ function CreateBookingPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!isEndTimeAfterStartTime(formData.startTime, formData.endTime)) {
+            setError('Booking end time must be after the start time.');
+            return;
+        }
+
+        if (
+            selectedResource &&
+            selectedResource.capacity &&
+            Number(formData.expectedAttendees) > Number(selectedResource.capacity)
+        ) {
+            setError(`Expected attendees cannot exceed the resource capacity of ${selectedResource.capacity}.`);
+            return;
+        }
+
         try {
             await createBooking({
                 resourceId: Number(formData.resourceId),
                 bookingDate: formData.bookingDate,
                 startTime: `${formData.startTime}:00`,
                 endTime: `${formData.endTime}:00`,
-                purpose: formData.purpose,
+                purpose: formData.purpose.trim(),
                 expectedAttendees: Number(formData.expectedAttendees),
             });
 
@@ -116,6 +131,7 @@ function CreateBookingPage() {
                                             className="form-select"
                                             value={formData.resourceId}
                                             onChange={handleChange}
+                                            required
                                         >
                                             <option value="">Select a resource</option>
                                             {resources.map((resource) => (
@@ -134,6 +150,8 @@ function CreateBookingPage() {
                                             className="form-control"
                                             value={formData.bookingDate}
                                             onChange={handleChange}
+                                            min={new Date().toISOString().slice(0, 10)}
+                                            required
                                         />
                                     </div>
 
@@ -153,6 +171,7 @@ function CreateBookingPage() {
                                             className="form-control"
                                             value={formData.startTime}
                                             onChange={handleChange}
+                                            required
                                         />
                                     </div>
 
@@ -164,6 +183,7 @@ function CreateBookingPage() {
                                             className="form-control"
                                             value={formData.endTime}
                                             onChange={handleChange}
+                                            required
                                         />
                                     </div>
 
@@ -176,6 +196,8 @@ function CreateBookingPage() {
                                             value={formData.purpose}
                                             onChange={handleChange}
                                             placeholder="Enter booking purpose"
+                                            required
+                                            maxLength="150"
                                         />
                                     </div>
 
@@ -188,6 +210,9 @@ function CreateBookingPage() {
                                             value={formData.expectedAttendees}
                                             onChange={handleChange}
                                             placeholder="Enter expected attendees"
+                                            required
+                                            min="1"
+                                            step="1"
                                         />
                                     </div>
 
