@@ -52,6 +52,16 @@ function CreateBookingPage() {
     const selectedResource = resources.find(
         (resource) => String(resource.id) === String(formData.resourceId)
     );
+    const expectedAttendeesCount = Number(formData.expectedAttendees);
+    const minimumRecommendedAttendees = selectedResource?.capacity
+        ? Math.ceil(Number(selectedResource.capacity) * 0.25)
+        : 0;
+    const isBelowRecommendedCapacity =
+        selectedResource &&
+        expectedAttendeesCount > 0 &&
+        expectedAttendeesCount < minimumRecommendedAttendees;
+    const shouldBlockForLargeResource =
+        isBelowRecommendedCapacity && Number(selectedResource?.capacity) >= 50;
 
     const formatTime = (time) => {
         return time ? time.slice(0, 5) : '-';
@@ -71,6 +81,13 @@ function CreateBookingPage() {
             Number(formData.expectedAttendees) > Number(selectedResource.capacity)
         ) {
             setError(`Expected attendees cannot exceed the resource capacity of ${selectedResource.capacity}.`);
+            return;
+        }
+
+        if (shouldBlockForLargeResource) {
+            setError(
+                `This resource is too large for ${expectedAttendeesCount} attendee(s). For rooms with capacity ${selectedResource.capacity}, at least ${minimumRecommendedAttendees} attendees are required.`
+            );
             return;
         }
 
@@ -214,6 +231,14 @@ function CreateBookingPage() {
                                             min="1"
                                             step="1"
                                         />
+                                        {isBelowRecommendedCapacity && (
+                                            <div className="form-text text-warning">
+                                                Recommended minimum for this resource is {minimumRecommendedAttendees}{' '}
+                                                attendee(s), which is 25% of its capacity of {selectedResource.capacity}.
+                                                {Number(selectedResource.capacity) >= 50 &&
+                                                    ' This booking cannot be submitted unless you meet that minimum for large rooms.'}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="col-12 action-group">
