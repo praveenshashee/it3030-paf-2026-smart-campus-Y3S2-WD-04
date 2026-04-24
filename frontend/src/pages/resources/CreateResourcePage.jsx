@@ -42,7 +42,9 @@ function CreateResourcePage() {
         try {
             await createResource({
                 ...formData,
+                name: formData.name.trim(),
                 capacity: Number(formData.capacity),
+                location: formData.location.trim(),
             });
 
             setError('');
